@@ -23,7 +23,7 @@ export class AuthGuard implements CanActivate {
     private readonly authService: AuthService,
   ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles: string[] = this.reflector.getAllAndOverride<string[]>(
       AuthDecorator.ROLES_KEY,
       [context.getHandler(), context.getClass()],
@@ -38,6 +38,13 @@ export class AuthGuard implements CanActivate {
 
     const user: ICurrentUser | null = this.authService.verifyJwtToken(token);
     if (!user) throw new UnauthorizedException();
+
+    // Verify that the token hash matches what is stored in the DB
+    const hashValid: boolean = await this.authService.verifyTokenHash(
+      token,
+      user,
+    );
+    if (!hashValid) throw new UnauthorizedException();
 
     if (user) {
       // Attach user to request
