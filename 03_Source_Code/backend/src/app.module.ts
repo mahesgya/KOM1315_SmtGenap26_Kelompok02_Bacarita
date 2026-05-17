@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { BaseTransactionModule } from './common/base-transaction/base-transaction.module';
 import { MailModule } from './common/mail/mail.module';
@@ -40,6 +41,8 @@ const env: string = process.env.NODE_ENV || 'development';
       ...dataSourceOptions,
       autoLoadEntities: true,
     }),
+
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 5 }]),
 
     UsersModule,
 

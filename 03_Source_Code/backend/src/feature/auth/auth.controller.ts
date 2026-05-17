@@ -4,8 +4,11 @@ import {
   Get,
   HttpCode,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { Request } from 'express';
 import { instanceToPlain } from 'class-transformer';
 import { DataResponse, MessageResponse } from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
@@ -48,11 +51,15 @@ export class AuthController {
 
   @Post('teachers/login')
   @HttpCode(200)
+  @UseGuards(ThrottlerGuard)
   public async loginTeacher(
     @Body() teacherSignInDto: TeacherSignInDTO,
+    @Req() request: Request,
   ): Promise<DataResponse<ITokenResponse>> {
-    const response: ITokenResponse =
-      await this.authService.loginTeacher(teacherSignInDto);
+    const response: ITokenResponse = await this.authService.loginTeacher(
+      teacherSignInDto,
+      request.ip ?? '',
+    );
 
     return new DataResponse<ITokenResponse>(
       200,
@@ -74,11 +81,15 @@ export class AuthController {
 
   @Post('students/login')
   @HttpCode(200)
+  @UseGuards(ThrottlerGuard)
   public async loginStudent(
     @Body() studentSignInDto: StudentSignInDTO,
+    @Req() request: Request,
   ): Promise<DataResponse<ITokenResponse>> {
-    const response: ITokenResponse =
-      await this.authService.loginStudent(studentSignInDto);
+    const response: ITokenResponse = await this.authService.loginStudent(
+      studentSignInDto,
+      request.ip ?? '',
+    );
 
     return new DataResponse<ITokenResponse>(
       200,
@@ -100,11 +111,15 @@ export class AuthController {
 
   @Post('parents/login')
   @HttpCode(200)
+  @UseGuards(ThrottlerGuard)
   public async loginParent(
     @Body() parentSignInDto: ParentSignInDTO,
+    @Req() request: Request,
   ): Promise<DataResponse<ITokenResponse>> {
-    const response: ITokenResponse =
-      await this.authService.loginParent(parentSignInDto);
+    const response: ITokenResponse = await this.authService.loginParent(
+      parentSignInDto,
+      request.ip ?? '',
+    );
 
     return new DataResponse<ITokenResponse>(
       200,
@@ -126,11 +141,15 @@ export class AuthController {
 
   @Post('admins/login')
   @HttpCode(200)
+  @UseGuards(ThrottlerGuard)
   public async loginAdmin(
     @Body() adminSignInDto: AdminSignInDTO,
+    @Req() request: Request,
   ): Promise<DataResponse<ITokenResponse>> {
-    const response: ITokenResponse =
-      await this.authService.loginAdmin(adminSignInDto);
+    const response: ITokenResponse = await this.authService.loginAdmin(
+      adminSignInDto,
+      request.ip ?? '',
+    );
 
     return new DataResponse<ITokenResponse>(
       200,
@@ -152,11 +171,15 @@ export class AuthController {
 
   @Post('curators/login')
   @HttpCode(200)
+  @UseGuards(ThrottlerGuard)
   public async loginCurator(
     @Body() curatorSignInDto: CuratorSignInDTO,
+    @Req() request: Request,
   ): Promise<DataResponse<ITokenResponse>> {
-    const response: ITokenResponse =
-      await this.authService.loginCurator(curatorSignInDto);
+    const response: ITokenResponse = await this.authService.loginCurator(
+      curatorSignInDto,
+      request.ip ?? '',
+    );
 
     return new DataResponse<ITokenResponse>(
       200,
