@@ -1,0 +1,92 @@
+PASS src/core/http/interceptors/success-response.interceptor.spec.ts
+  SuccessResponseInterceptor
+    ✓ must return data as is when data is instance of MessageResponse (7 ms)
+    ✓ must return data as is when data is instance of DataResponse (1 ms)
+    ✓ must wrap string data into MessageResponse (1 ms)
+    ✓ must return default success message for unknown data types (1 ms)
+    ✓ must return default success message for undefined data (1 ms)
+    ✓ must use status code from response object (e.g., 201) (1 ms)
+
+PASS src/feature/test-session/entities/stt-word-result.entity.spec.ts
+  Unit Test: STTWordResult Entity
+    ✓ must set fields correctly (5 ms)
+    ✓ must associate with TestSession correctly (1 ms)
+    canBeAnswered()
+      ✓ must return true when both spokenWord and accuracy are null
+      ✓ must return true when spokenWord is null and accuracy has value (1 ms)
+      ✓ must return true when spokenWord has value and accuracy is null
+      ✓ must return true when both fields are undefined
+      ✓ must return false when both spokenWord and accuracy have values (already answered) (1 ms)
+      ✓ must return false when answer is complete with different spoken word
+      ✓ must return false when answer has zero accuracy
+      ✓ must return false when answer has perfect accuracy
+
+PASS src/feature/levels/entities/story.entity.spec.ts
+  Unit Test: Story Entity
+    ✓ must create a story with default status (3 ms)
+    ✓ must set fields correctly
+    ✓ must split passage to sentences correctly (1 ms)
+    ✓ (static passageToSenteces) must split passage to sentences correctly
+    ✓ (isCurrentStudentValidForStory) must handle correctly (1 ms)
+
+PASS src/feature/levels/entities/level.entity.spec.ts
+  Unit Test: Level Entity
+    ✓ must compute fullName correctly (5 ms)
+    ✓ must compute maxPoints based on accepted stories
+    ✓ must return 0 maxPoints if no accepted stories
+
+PASS src/core/http/filters/http-exception.filter.spec.ts
+  AllExceptionsFilter
+    ✓ must handle string HttpException (3 ms)
+    ✓ must handle object HttpException with string message
+    ✓ must handle object HttpException with array message (2 ms)
+    ✓ must handle other HttpException such as BadRequestException (1 ms)
+    ✓ must log internal server errors (4 ms)
+
+PASS src/feature/levels/entities/level-progress.entity.spec.ts
+  Unit Test: LevelProgress Entity
+    ✓ must compute currentPoints correctly (2 ms)
+    ✓ must compute progress as percentage
+    ✓ must compute requiredPoints to reach 75% threshold
+    ✓ must return 0 requiredPoints if already at or above threshold
+    ✓ must return 0 requiredPoints; 100 progress if already completed
+    ✓ must return 0 requiredPoints; 100 progress; and isSkipped true if skipped (1 ms)
+
+PASS src/feature/test-session/entities/test-session.entity.spec.ts
+  Unit Test: TestSession Entity
+    ✓ must set fields correctly (2 ms)
+    ✓ must compute imageAtTakenUrl correctly when image exists
+    ✓ must return null for imageAtTakenUrl when no image
+    ✓ must compute remainingTimeInSeconds correctly for active session (1 ms)
+    ✓ must return 0 remainingTimeInSeconds for finished session
+    ✓ must return 0 remainingTimeInSeconds when time exceeded
+    ✓ must handle score and medal calculation right
+    ✓ must handle score and medal calculation right if no stt (1 ms)
+
+PASS src/feature/auth/digital-signature/asymmetric-signature.service.spec.ts
+  Unit Test: AsymmetricSignatureService
+    ✓ must instantiate and expose a PEM public key (65 ms)
+    ✓ must sign data and verify the signature (valid case) (63 ms)
+    ✓ must reject a tampered payload (non-repudiation check) (85 ms)
+    ✓ must reject a forged signature (invalid base64 bytes) (56 ms)
+    ✓ must reject an empty signature string (105 ms)
+    ✓ must produce different signatures for different data (21 ms)
+    ✓ must produce a stable signature verifiable across service instances for env-keyed keys (10 ms)
+
+PASS src/feature/auth/guards/auth.guard.spec.ts
+  Unit Test: AuthGuard — AAA Authorization Layer
+    ✓ must throw 401 when Authorization header is absent (5 ms)
+    ✓ must throw 401 when Authorization header has no token part
+    ✓ must throw 401 when JWT is invalid or expired
+    ✓ must throw 401 when token hash does not match DB record (revoked token)
+    ✓ must throw 403 when authenticated user has insufficient role (student accessing teacher route) (1 ms)
+    ✓ must throw 403 when authenticated user has insufficient role (parent accessing admin route)
+    ✓ must allow access when role matches required role
+    ✓ must allow access when ANY role is accepted
+    ✓ must allow access when no roles are required (public-ish guarded route)
+
+Test Suites: 9 passed, 9 total
+Tests:       59 passed, 59 total
+Snapshots:   0 total
+Time:        3.28 s, estimated 4 s
+Ran all test suites.
