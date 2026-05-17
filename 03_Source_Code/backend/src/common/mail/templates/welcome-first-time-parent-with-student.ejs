@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Selamat Datang di Bacarita</title>
+  <style>
+    :root{
+      --clr-text:#5a4631;
+      --clr-border:#DE954F;
+      --clr-bg:#FFF8EC;
+      --clr-canvas:#EDD1B0;
+    }
+    body{
+      margin:0;
+      padding:24px 0;
+      background:var(--clr-canvas);
+      color:var(--clr-text);
+      font-family: Verdana, "Helvetica Neue", Arial, sans-serif;
+    }
+    .container{
+      max-width:640px;
+      margin:0 auto;
+      background:var(--clr-bg);
+      border:2px solid var(--clr-border);
+      border-radius:16px;
+      padding:28px 24px;
+      box-shadow:0 8px 24px rgba(90,70,49,.08);
+    }
+    h2{
+      margin:0 0 12px;
+      text-align:center;
+      font-size:24px;
+      line-height:1.25;
+      color:var(--clr-text);
+    }
+    .rule{
+      height:2px;
+      width:100%;
+      background:linear-gradient(to right, var(--clr-border), transparent);
+      opacity:.55;
+      margin:10px 0 18px;
+      border-radius:2px;
+    }
+    p{
+      margin:10px 0;
+      font-size:15px;
+      line-height:1.6;
+      color:var(--clr-text);
+    }
+    ul{
+      list-style:none;
+      padding:0;
+      margin:16px 0;
+    }
+    li{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      background:#fffaf0;
+      border:1.5px solid rgba(222,149,79,.6);
+      border-radius:12px;
+      padding:10px 14px;
+      margin-bottom:10px;
+      font-size:15px;
+      color:var(--clr-text);
+    }
+    strong{
+      min-width:200px; /* lebar label */
+      font-weight:700;
+      color:var(--clr-text);
+    }
+    .badge{
+      display:inline-block;
+      font-size:12px;
+      padding:2px 8px;
+      border:1px solid var(--clr-border);
+      border-radius:999px;
+      background:#fff7ea;
+      color:var(--clr-text);
+    }
+    .footer{
+      margin-top:24px;
+      padding-top:14px;
+      font-size:13px;
+      color:rgba(90,70,49,.85);
+      border-top:2px dashed rgba(222,149,79,.6);
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Selamat Datang di Bacarita, <%= parentUsername %>!</h2>
+    <div class="rule"></div>
+
+    <p>
+      Akun anak Anda telah berhasil dibuat dengan rincian berikut:
+    </p>
+
+    <ul>
+      <li><strong>Peran Orang Tua:</strong> <span class="badge">Orang Tua</span></li>
+      <li><strong>Nama Pengguna Orang Tua:</strong> <%= parentUsername %></li>
+      <li><strong>Email Orang Tua:</strong> <%= parentEmail %></li>
+      <li><strong>Kata Sandi Orang Tua:</strong> <%= parentPassword %></li>
+
+      <li><strong>Peran Anak:</strong> <span class="badge">Siswa</span></li>
+      <li><strong>Nama Pengguna Siswa:</strong> <%= studentUsername %></li>
+      <li><strong>Kata Sandi Siswa:</strong> <%= studentPassword %></li>
+    </ul>
+
+    <p>
+      Untuk memulai, silakan masuk menggunakan kredensial di atas.
+      Jika Anda memerlukan bantuan, hubungi tim dukungan kami.
+    </p>
+
+    <p>Selamat belajar!<br><strong>Tim Bacarita</strong></p>
+
+    <div class="footer">
+      &copy; <%= new Date().getFullYear() %> Bacarita. Semua hak dilindungi.
+    </div>
+  </div>
+</body>
+</html>

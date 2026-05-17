@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fff8e7;
+  --foreground: #171717;
+  --color-bg-primary: #fff8e7;
+  --color-text-primary: #333333;
+  --color-text-secondary: #1c3751;
+  --color-accent: #4a90e2;
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-light-blue: #e3f2fd;
+  --color-white: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--color-bg-primary);
+  --color-foreground: var(--color-text-primary);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body { overscroll-behavior: none; }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; 
+  scrollbar-width: none;
+}
+
+body {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/fonts/OpenDyslexic-Regular.woff2") format("woff2"), url("/fonts/OpenDyslexic-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/fonts/OpenDyslexic-Bold.woff2") format("woff2"), url("/fonts/OpenDyslexic-Bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/fonts/OpenDyslexic-Italic.woff2") format("woff2"), url("/fonts/OpenDyslexic-Italic.woff") format("woff");
+  font-weight: normal;
+  font-style: italic;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/fonts/OpenDyslexic-Bold-Italic.woff2") format("woff2"), url("/fonts/OpenDyslexic-Bold-Italic.woff") format("woff");
+  font-weight: bold;
+  font-style: italic;
+}
+
+.open-dyslexic {
+  font-family: "OpenDyslexic", Arial, Helvetica, sans-serif;
+}
+
+.verdana {
+  font-family: Verdana, Geneva, Tahoma, sans-serif; 
+}

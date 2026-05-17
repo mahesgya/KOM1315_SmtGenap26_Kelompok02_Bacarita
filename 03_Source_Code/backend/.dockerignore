@@ -1,0 +1,9 @@
+node_modules
+logs
+coverage
+.vscode
+.github
+dist
+.git
+.env
+npm-debug.log

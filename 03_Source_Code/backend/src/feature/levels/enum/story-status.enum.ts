@@ -1,0 +1,6 @@
+export enum StoryStatus {
+  ACCEPTED = 'ACCEPTED',
+  WAITING = 'WAITING',
+  WAITING_NEWLY = 'WAITING_NEWLY',
+  REJECTED = 'REJECTED',
+}
