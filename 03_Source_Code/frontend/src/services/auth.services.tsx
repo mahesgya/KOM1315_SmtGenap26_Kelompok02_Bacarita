@@ -1,9 +1,8 @@
 import axios, { AxiosError } from 'axios';
-import Cookies from '../../node_modules/@types/js-cookie';
 import { AdminProfileResponse, KuratorProfileResponse, LoginResponse, RegisterGuruPayload, RegisterResponse } from '@/types/auth.types';
 import { ErrorPayload } from '@/types/general.types';
 import { setLogin } from '@/redux/auth.slice';
-import type { AppDispatch } from '@/redux/store';
+import type { AppDispatch, RootState } from '@/redux/store';
 import { setLoading } from '@/redux/general.slice';
 import { TeacherProfileResponse, StudentProfileResponse, ParentProfileResponse } from '@/types/auth.types';
 
@@ -19,6 +18,18 @@ type LoginPayloadMap = {
 
 type LoginRole = keyof LoginPayloadMap;
 
+// Retrieve the JWT from the HttpOnly cookie via the BFF relay route.
+// The cookie cannot be read directly by JS; the server-side relay returns it.
+async function getSessionToken(): Promise<string | null> {
+  try {
+    const res = await fetch('/api/auth/token');
+    const data = await res.json();
+    return data.token ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function Login<Role extends LoginRole>(role: Role, payload: LoginPayloadMap[Role], dispatch: AppDispatch): Promise<LoginResponse | ErrorPayload> {
   try {
     dispatch(setLoading(true));
@@ -27,13 +38,15 @@ async function Login<Role extends LoginRole>(role: Role, payload: LoginPayloadMa
     if (response.data.success) {
       const token = response.data.data.token;
 
+      // Store token in HttpOnly cookie via server-side route (AUTH-05 remediation).
+      // token is no longer set in a JS-accessible cookie.
       await fetch('/api/auth/set-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role }),
+        body: JSON.stringify({ role, token }),
       });
-      Cookies.set('token', token);
-      dispatch(setLogin({ token: token }));
+
+      dispatch(setLogin({ token }));
     }
 
     return response.data;
@@ -55,12 +68,20 @@ async function Login<Role extends LoginRole>(role: Role, payload: LoginPayloadMa
   }
 }
 
-async function GetProfile<T>(dispatch: AppDispatch): Promise<T | ErrorPayload> {
+async function GetProfile<T>(dispatch: AppDispatch, getState?: () => RootState): Promise<T | ErrorPayload> {
   try {
     dispatch(setLoading(true));
+
+    // Prefer in-memory Redux token (available within the same session).
+    // Fall back to BFF relay (reads HttpOnly cookie) after page refresh.
+    let token: string | null = getState?.()?.auth?.token ?? null;
+    if (!token) {
+      token = await getSessionToken();
+    }
+
     const response = await axios.get<T>(`${BASE_URL}/auth/me`, {
       headers: {
-        Authorization: `Bearer ${Cookies.get('token')}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -106,11 +127,11 @@ const AuthServices = {
   },
 
   //PART GET PROFILE
-  GetProfileStudent: (dispatch: AppDispatch) => GetProfile<StudentProfileResponse>(dispatch),
-  GetProfileTeacher: (dispatch: AppDispatch) => GetProfile<TeacherProfileResponse>(dispatch),
-  GetProfileParent: (dispatch: AppDispatch) => GetProfile<ParentProfileResponse>(dispatch),
-  GetProfileAdmin: (dispatch: AppDispatch) => GetProfile<AdminProfileResponse>(dispatch),
-  GetProfileKurator: (dispatch: AppDispatch) => GetProfile<KuratorProfileResponse>(dispatch),
+  GetProfileStudent: (dispatch: AppDispatch, getState?: () => RootState) => GetProfile<StudentProfileResponse>(dispatch, getState),
+  GetProfileTeacher: (dispatch: AppDispatch, getState?: () => RootState) => GetProfile<TeacherProfileResponse>(dispatch, getState),
+  GetProfileParent: (dispatch: AppDispatch, getState?: () => RootState) => GetProfile<ParentProfileResponse>(dispatch, getState),
+  GetProfileAdmin: (dispatch: AppDispatch, getState?: () => RootState) => GetProfile<AdminProfileResponse>(dispatch, getState),
+  GetProfileKurator: (dispatch: AppDispatch, getState?: () => RootState) => GetProfile<KuratorProfileResponse>(dispatch, getState),
 };
 
 export default AuthServices;
