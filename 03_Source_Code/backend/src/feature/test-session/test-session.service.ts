@@ -4,8 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
 import { ITransactionalService } from 'src/common/base-transaction/transactional.interface.service';
+import { CryptoService } from 'src/common/crypto/crypto.service';
 import { TokenGeneratorService } from 'src/common/token-generator/token-generator.service';
 import { DataSource, EntityManager, IsNull, Not, Repository } from 'typeorm';
 import { OpenRouterService } from '../ai/open-router.service';
@@ -58,6 +60,10 @@ export class TestSessionService extends ITransactionalService {
     private readonly distractedEyeEventsSummaryRepository: Repository<DistractedEyeEventsSummary>,
 
     private readonly tokenGeneratorService: TokenGeneratorService,
+
+    private readonly cryptoService: CryptoService,
+
+    private readonly configService: ConfigService,
   ) {
     super(dataSource);
     this.logger.setContext(TestSessionService.name);
@@ -406,6 +412,18 @@ export class TestSessionService extends ITransactionalService {
     );
     testSession.medal = testSession.determineMedal();
     testSession.finishedAt = new Date();
+
+    // Sign the result to prevent tampering
+    const signData = JSON.stringify({
+      id: testSession.id,
+      studentId: testSession.student.id,
+      score: testSession.score,
+      medal: testSession.medal,
+    });
+    testSession.resultSignature = this.cryptoService.signResult(
+      signData,
+      this.configService.get<string>('app.jwt.secret') ?? '',
+    );
 
     // -- HANDLE PRE-TEST COMPLETION AND LEVEL PROGRESS UPDATES --
     if (isPreTest) {

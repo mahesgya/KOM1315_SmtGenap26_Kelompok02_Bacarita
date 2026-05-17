@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CryptoModule } from 'src/common/crypto/crypto.module';
 import { TokenGeneratorModule } from 'src/common/token-generator/token-generator.module';
 import { AiModule } from '../ai/ai.module';
 import { AuthModule } from '../auth/auth.module';
@@ -19,6 +21,10 @@ import { TestSessionService } from './test-session.service';
     AiModule,
 
     AuthModule,
+
+    ConfigModule,
+
+    CryptoModule,
 
     TypeOrmModule.forFeature([
       TestSession,

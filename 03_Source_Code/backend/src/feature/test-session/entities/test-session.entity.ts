@@ -80,6 +80,9 @@ export class TestSession {
   @Column({ type: 'float', nullable: true })
   score: number;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  resultSignature: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 
