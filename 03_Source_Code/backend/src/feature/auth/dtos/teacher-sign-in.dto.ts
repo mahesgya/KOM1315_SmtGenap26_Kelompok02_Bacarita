@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, ValidateIf } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, ValidateIf } from 'class-validator';
 
 export class TeacherSignInDTO {
   @ValidateIf((o: TeacherSignInDTO) => !o.username)
@@ -13,5 +13,6 @@ export class TeacherSignInDTO {
 
   @IsNotEmpty({ message: 'Password tidak boleh kosong' })
   @IsString({ message: 'Password harus berupa string' })
+  @MinLength(8, { message: 'Password minimal 8 karakter' })
   password: string;
 }

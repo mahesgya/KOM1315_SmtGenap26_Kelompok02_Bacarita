@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class ParentSignInDTO {
   @IsNotEmpty({ message: 'Email tidak boleh kosong' })
@@ -7,5 +7,6 @@ export class ParentSignInDTO {
 
   @IsNotEmpty({ message: 'Password tidak boleh kosong' })
   @IsString({ message: 'Password harus berupa string' })
+  @MinLength(8, { message: 'Password minimal 8 karakter' })
   password: string;
 }
