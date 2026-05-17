@@ -35,6 +35,12 @@ export class Teacher {
   @Exclude({ toPlainOnly: true })
   token: string | null;
 
+  @Column({ type: 'int', default: 0 })
+  failedLoginAttempts: number;
+
+  @Column({ type: 'datetime', nullable: true })
+  lockedUntil: Date | null;
+
   @OneToMany(() => Student, (student: Student) => student.teacher)
   students: Student[];
 
