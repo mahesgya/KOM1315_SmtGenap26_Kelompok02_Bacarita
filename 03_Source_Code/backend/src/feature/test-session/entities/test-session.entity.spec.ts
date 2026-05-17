@@ -80,7 +80,7 @@ describe('Unit Test: TestSession Entity', () => {
       } as STTWordResult,
     ];
 
-    testSession.score = testSession.calculateScore(sttWordResult);
+    testSession.score = testSession.calculateScore(sttWordResult, [], 0, true);
     expect(testSession.score).toBe(224 / 4);
     testSession.medal = testSession.determineMedal();
     expect(testSession.medal).toBe(StoryMedal.SILVER);
@@ -109,7 +109,7 @@ describe('Unit Test: TestSession Entity', () => {
       } as STTWordResult,
     ];
 
-    testSession2.score = testSession2.calculateScore(sttWordResult2);
+    testSession2.score = testSession2.calculateScore(sttWordResult2, [], 0, true);
     expect(testSession2.score).toBe(81);
     testSession2.medal = testSession2.determineMedal();
     expect(testSession2.medal).toBe(StoryMedal.GOLD);
@@ -119,7 +119,7 @@ describe('Unit Test: TestSession Entity', () => {
     const testSession: TestSession = new TestSession();
     const sttWordResult: STTWordResult[] = [];
 
-    testSession.score = testSession.calculateScore(sttWordResult);
+    testSession.score = testSession.calculateScore(sttWordResult, [], 0, true);
     expect(testSession.score).toBe(0);
     testSession.medal = testSession.determineMedal();
     expect(testSession.medal).toBe(StoryMedal.BRONZE);
