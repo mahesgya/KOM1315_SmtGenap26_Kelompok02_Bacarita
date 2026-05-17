@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
 import { ITransactionalService } from 'src/common/base-transaction/transactional.interface.service';
 import { CryptoService } from 'src/common/crypto/crypto.service';
+import { AsymmetricSignatureService } from 'src/feature/auth/digital-signature/asymmetric-signature.service';
 import { TokenGeneratorService } from 'src/common/token-generator/token-generator.service';
 import { DataSource, EntityManager, IsNull, Not, Repository } from 'typeorm';
 import { OpenRouterService } from '../ai/open-router.service';
@@ -64,6 +65,8 @@ export class TestSessionService extends ITransactionalService {
     private readonly cryptoService: CryptoService,
 
     private readonly configService: ConfigService,
+
+    private readonly asymmetricSignatureService: AsymmetricSignatureService,
   ) {
     super(dataSource);
     this.logger.setContext(TestSessionService.name);
@@ -413,17 +416,15 @@ export class TestSessionService extends ITransactionalService {
     testSession.medal = testSession.determineMedal();
     testSession.finishedAt = new Date();
 
-    // Sign the result to prevent tampering
+    // Sign the result with RSA private key (asymmetric — non-repudiation).
     const signData = JSON.stringify({
       id: testSession.id,
       studentId: testSession.student.id,
       score: testSession.score,
       medal: testSession.medal,
     });
-    testSession.resultSignature = this.cryptoService.signResult(
-      signData,
-      this.configService.get<string>('app.jwt.secret') ?? '',
-    );
+    testSession.resultSignature =
+      this.asymmetricSignatureService.sign(signData);
 
     // -- HANDLE PRE-TEST COMPLETION AND LEVEL PROGRESS UPDATES --
     if (isPreTest) {

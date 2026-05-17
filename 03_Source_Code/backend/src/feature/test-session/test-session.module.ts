@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CryptoModule } from 'src/common/crypto/crypto.module';
+import { AsymmetricSignatureModule } from 'src/feature/auth/digital-signature/asymmetric-signature.module';
 import { TokenGeneratorModule } from 'src/common/token-generator/token-generator.module';
 import { AiModule } from '../ai/ai.module';
 import { AuthModule } from '../auth/auth.module';
@@ -23,6 +24,8 @@ import { TestSessionService } from './test-session.service';
     AuthModule,
 
     ConfigModule,
+
+    AsymmetricSignatureModule,
 
     CryptoModule,
 
