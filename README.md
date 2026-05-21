@@ -29,6 +29,14 @@ feature implementation still lives in `03_Source_Code/backend/src/feature/auth/`
 so the current codebase remains stable while still matching the expected
 repository shape more closely.
 
+To align the repository root structure with the course template, the project
+also exposes:
+
+- `03_Source_Code/database/` as a compatibility entrypoint for TypeORM config,
+  seeders, and migration-related database code from the backend project.
+- `03_Source_Code/digital_signature/` as a compatibility entrypoint for the RSA
+  digital-signature module implemented in the backend auth feature.
+
 ---
 
 ## Prerequisites

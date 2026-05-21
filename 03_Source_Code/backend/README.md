@@ -24,6 +24,14 @@ directory, the project also provides a compatibility layer in `src/auth/` that
 re-exports the same authentication, authorization, and digital-signature
 modules without changing the runtime behavior of the application.
 
+For the same reason, the repository root also exposes:
+
+- `../database/` for database-related entrypoints
+- `../digital_signature/` for digital-signature entrypoints
+
+These folders map back to the active backend implementation and are intended for
+repository structure compliance, not as separate runtime projects.
+
 ## Project setup
 
 ```bash
