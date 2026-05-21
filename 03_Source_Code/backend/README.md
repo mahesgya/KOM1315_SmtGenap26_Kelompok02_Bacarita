@@ -15,6 +15,15 @@
 
 # Bacarita Backend
 
+## Source Structure
+
+The primary authentication implementation lives in `src/feature/auth/`.
+
+To align this repository with the course requirement that expects a `src/auth/`
+directory, the project also provides a compatibility layer in `src/auth/` that
+re-exports the same authentication, authorization, and digital-signature
+modules without changing the runtime behavior of the application.
+
 ## Project setup
 
 ```bash

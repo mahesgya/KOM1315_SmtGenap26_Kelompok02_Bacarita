@@ -21,6 +21,14 @@ A full-stack web application built with NestJS (backend) and Next.js (frontend).
 - **Styling**: Tailwind CSS v4
 - **Language**: TypeScript
 
+## Repository Structure Note
+
+For course compliance, the backend now exposes a `src/auth/` compatibility
+entrypoint under `03_Source_Code/backend/src/auth/`. The actual NestJS auth
+feature implementation still lives in `03_Source_Code/backend/src/feature/auth/`
+so the current codebase remains stable while still matching the expected
+repository shape more closely.
+
 ---
 
 ## Prerequisites
