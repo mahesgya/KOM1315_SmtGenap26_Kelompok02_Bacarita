@@ -7,6 +7,6 @@ export class ParentSignInDTO {
 
   @IsNotEmpty({ message: 'Password tidak boleh kosong' })
   @IsString({ message: 'Password harus berupa string' })
-  @MinLength(8, { message: 'Password minimal 8 karakter' })
+  @MinLength(6, { message: 'Password minimal 6 karakter' })
   password: string;
 }

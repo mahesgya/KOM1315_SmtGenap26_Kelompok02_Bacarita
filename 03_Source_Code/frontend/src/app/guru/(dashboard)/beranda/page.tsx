@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import TeacherServices from "@/services/teacher.services";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { BookOpen, Users, CheckCircle, Clock, Trophy, X, Filter, Plus, Trash2, Edit } from "lucide-react";
-import type { OverviewData, TestSessionResult } from "@/types/teacher.types";
+import { BookOpen, Users, CheckCircle, Clock, Trophy, Filter, Plus, Trash2, Edit } from "lucide-react";
+import type { OverviewData, TestSessionResult, StudentData as TeacherStudentData } from "@/types/teacher.types";
 import { useDispatch, useSelector } from "react-redux";
 import { StatCard, MedalBadge } from "@/components/guru/beranda";
 import { RootState } from "@/redux/store";
@@ -16,6 +16,7 @@ import type { IBonusStory, IBonusStudent } from "@/types/bonus.types";
 const BerandaGuru = () => {
   const dispatch = useDispatch();
   const [overview, setOverview] = useState<OverviewData | null>(null);
+  const [teacherStudents, setTeacherStudents] = useState<TeacherStudentData[]>([]);
   const isLoading = useSelector((state: RootState) => state.general.isLoading);
   const [activeSession, setActiveSession] = useState<TestSessionResult | null>(null);
   const [filterMedal, setFilterMedal] = useState<string>("ALL");
@@ -34,7 +35,16 @@ const BerandaGuru = () => {
       }
     };
 
+    const fetchStudents = async () => {
+      const response = await TeacherServices.GetAllStudent(dispatch);
+
+      if (response.success) {
+        setTeacherStudents(response.data);
+      }
+    };
+
     fetchOverview();
+    fetchStudents();
 
     const loadBonusStories = async () => {
       const result = await BonusServices.GetBonusStoriesList(dispatch);
@@ -46,36 +56,29 @@ const BerandaGuru = () => {
     loadBonusStories();
   }, [dispatch]);
 
-  const dashboardStudents: IBonusStudent[] = overview
-    ? Array.from(
-        new Map(
-          overview.testSessions.map((s) => {
-            let studentId: number;
-            const numId = parseInt(s.student.id);
-            if (!isNaN(numId)) {
-              studentId = numId;
-            } else {
-              let hash = 0;
-              for (let i = 0; i < s.student.id.length; i++) {
-                const char = s.student.id.charCodeAt(i);
-                hash = (hash << 5) - hash + char;
-                hash = hash & hash;
-              }
-              studentId = Math.abs(hash);
-            }
-            return [
-              s.student.id,
-              {
-                id: studentId,
-                name: s.student.fullName,
-                nisn: s.student.username || "",
-                kelas: "",
-              },
-            ];
-          })
-        ).values()
-      )
-    : [];
+  const dashboardStudents: IBonusStudent[] = teacherStudents.map((student) => {
+    let studentId: number;
+    const numId = parseInt(student.id);
+
+    if (!isNaN(numId)) {
+      studentId = numId;
+    } else {
+      let hash = 0;
+      for (let i = 0; i < student.id.length; i++) {
+        const char = student.id.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash = hash & hash;
+      }
+      studentId = Math.abs(hash);
+    }
+
+    return {
+      id: studentId,
+      name: student.fullName,
+      nisn: student.username || "",
+      kelas: "",
+    };
+  });
 
   const handleBonusSubmit = async (data: { title: string; description: string; passage: string; imageCover: File | null; studentIds: number[] }) => {
     setIsBonusLoading(true);
@@ -199,16 +202,6 @@ const BerandaGuru = () => {
 
   // Sort by most recent and take only 10
   const displayedSessions = filteredSessions.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()).slice(0, 10);
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const uniqueMedals = [...new Set(completedSessions.map((s) => s.medal))];
 

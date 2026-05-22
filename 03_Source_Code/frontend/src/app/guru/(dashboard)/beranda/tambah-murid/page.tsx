@@ -7,10 +7,12 @@ import { ParentsEmailandFullName, RegisterStudentPayload } from "@/types/teacher
 import { useSelector } from "react-redux";
 import TeacherServices from "@/services/teacher.services";
 import { showToastError, showToastSuccess } from "@/components/utils/toast.utils";
-import { User, AtSign, Users, Mail, Check, LoaderCircle } from "lucide-react";
+import { User, AtSign, Users, Mail, Check, LoaderCircle, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const TambahMurid = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const isLoading = useSelector((state: RootState) => state.general.isLoading);
 
   const [form, setForm] = useState<RegisterStudentPayload>({
@@ -24,6 +26,12 @@ const TambahMurid = () => {
   const [existingParents, setExistingParents] = useState<ParentsEmailandFullName[]>([]);
   const [isNewParent, setIsNewParent] = useState(true);
   const [isJumpLevel, setIsJumpLevel] = useState(false);
+  const [successInfo, setSuccessInfo] = useState<{
+    studentFullName: string;
+    studentUsername: string;
+    parentEmail: string;
+    parentWasNew: boolean;
+  } | null>(null);
 
   useEffect(() => {
     const fetchParents = async () => {
@@ -34,7 +42,7 @@ const TambahMurid = () => {
     };
 
     fetchParents();
-  }, []);
+  }, [dispatch]);
 
   const handleParentSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedEmail = e.target.value;
@@ -55,6 +63,7 @@ const TambahMurid = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSuccessInfo(null);
 
     const payload: Partial<RegisterStudentPayload> = { ...form };
 
@@ -70,12 +79,37 @@ const TambahMurid = () => {
 
     if (response.success) {
       showToastSuccess("Siswa berhasil ditambahkan!");
+      setSuccessInfo({
+        studentFullName: response.data.fullName,
+        studentUsername: response.data.username,
+        parentEmail: response.data.parent.email,
+        parentWasNew: isNewParent,
+      });
+
+      if (isNewParent) {
+        setExistingParents((current) => {
+          const alreadyExists = current.some((parent) => parent.email === response.data.parent.email);
+          if (alreadyExists) return current;
+
+          return [...current, { email: response.data.parent.email, fullName: response.data.parent.fullName }].sort((left, right) =>
+            left.email.localeCompare(right.email)
+          );
+        });
+      }
     } else {
       showToastError(response.error || "Gagal menambahkan siswa.");
+      return;
     }
 
-    setForm({ studentUsername: "", studentFullName: "", parentEmail: "", parentFullName: "" });
+    setForm({
+      studentUsername: "",
+      studentFullName: "",
+      parentEmail: "",
+      parentFullName: "",
+      jumpLevelTo: 2,
+    });
     setIsNewParent(true);
+    setIsJumpLevel(false);
   };
 
   return (
@@ -85,6 +119,37 @@ const TambahMurid = () => {
           <h2 className="verdana text-center text-2xl md:text-3xl font-bold text-[#5A3E2B]">Formulir Murid Baru</h2>
           <p className="text-[#8D6E52] verdana text-sm">Lengkapi detail di bawah ini untuk menambahkan murid ke dalam kelas Anda.</p>
         </div>
+
+        <div className="rounded-2xl border border-[#F0C89A] bg-[#FFF3E2] p-4 text-sm text-[#6B4A32]">
+          <p className="font-semibold text-[#5A3E2B]">Informasi kredensial akun</p>
+          <p className="mt-2">
+            Password siswa dibuat otomatis oleh sistem dan dikirim ke email orang tua. Jika orang tua baru dibuat, akun orang tua juga mendapat password otomatis melalui email yang sama. Jika orang tua sudah terdaftar, akun orang tua tetap memakai password lamanya.
+          </p>
+        </div>
+
+        {successInfo && (
+          <div className="rounded-2xl border border-[#DE954F] bg-[#FFF3E2] p-4 text-sm text-[#6B4A32]">
+            <p className="font-semibold text-[#5A3E2B]">Siswa berhasil dibuat</p>
+            <p className="mt-2">
+              <span className="font-medium">{successInfo.studentFullName}</span> (`@{successInfo.studentUsername}`) sudah terdaftar dan terhubung ke email orang tua <span className="font-medium">{successInfo.parentEmail}</span>.
+            </p>
+            <p className="mt-2">
+              {successInfo.parentWasNew
+                ? "Email orang tua menerima username dan password orang tua, serta username dan password siswa."
+                : "Email orang tua menerima username dan password siswa yang baru. Password akun orang tua tidak diubah."}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => router.push("/guru/beranda/performa-murid")}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#DE954F] px-4 py-2 font-semibold text-white transition hover:bg-[#B67432]"
+              >
+                <span>Lihat Data Siswa</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
         <hr className="border-[#DE954F]" />
 

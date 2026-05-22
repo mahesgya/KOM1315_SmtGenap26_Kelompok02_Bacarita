@@ -33,6 +33,7 @@ export default Joi.object({
   CURATOR_PASSWORD: Joi.string().required(),
   CURATOR_FULL_NAME: Joi.string().required(),
 
+  DEV_MAIL_MODE: Joi.string().valid('smtp', 'log').default('smtp'),
   MAIL_HOST: Joi.string().required(),
   MAIL_PORT: Joi.number().port().default(587),
   MAIL_SECURE: Joi.boolean().default(false),
