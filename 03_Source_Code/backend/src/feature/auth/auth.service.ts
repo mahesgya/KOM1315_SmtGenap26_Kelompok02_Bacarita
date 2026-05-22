@@ -3,6 +3,7 @@ import {
   HttpException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -51,6 +52,7 @@ const AUDIT_LOG_PATH =
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 const DEFAULT_AUDIT_WINDOW: AuditWindow = '7d';
+const AUDIT_DASHBOARD_ACCESS_HEADER = 'x-audit-dashboard-key';
 
 @Injectable()
 export class AuthService {
@@ -179,6 +181,24 @@ export class AuthService {
     return [...buckets.entries()]
       .sort(([left], [right]) => left.localeCompare(right))
       .map(([, value]) => value);
+  }
+
+  private validateAuditDashboardAccessKey(accessKey?: string): void {
+    const configuredAccessKey = this.configService.get<string>(
+      'app.auditDashboard.accessKey',
+    );
+
+    if (!configuredAccessKey) {
+      throw new ServiceUnavailableException(
+        'Dashboard audit standalone belum dikonfigurasi. Set AUDIT_DASHBOARD_ACCESS_KEY di backend.',
+      );
+    }
+
+    if (!accessKey || accessKey !== configuredAccessKey) {
+      throw new ForbiddenException(
+        'Dashboard audit standalone membutuhkan access key yang valid.',
+      );
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -311,6 +331,14 @@ export class AuthService {
         }),
       ),
     };
+  }
+
+  public async getAuditLogDashboardForStandalone(
+    query: AuthAuditLogQueryDTO,
+    accessKey?: string,
+  ): Promise<AuthAuditLogDashboardDTO> {
+    this.validateAuditDashboardAccessKey(accessKey);
+    return this.getAuditLogDashboard(query);
   }
 
   public async loginTeacher(

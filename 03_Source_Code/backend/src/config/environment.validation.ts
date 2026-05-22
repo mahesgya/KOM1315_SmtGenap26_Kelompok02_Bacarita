@@ -22,6 +22,7 @@ export default Joi.object({
 
   JWT_SECRET: Joi.string().required(),
   JWT_EXPIRES: Joi.string().required(),
+  AUDIT_DASHBOARD_ACCESS_KEY: Joi.string().allow('').optional(),
 
   ADMIN_EMAIL: Joi.string().email().required(),
   ADMIN_USERNAME: Joi.string().required(),

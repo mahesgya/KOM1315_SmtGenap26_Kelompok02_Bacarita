@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
   Post,
   Query,
@@ -63,6 +64,24 @@ export class AuthController {
     return new DataResponse<AuthAuditLogDashboardDTO>(
       200,
       'Berhasil mendapatkan data audit autentikasi.',
+      dashboard,
+    );
+  }
+
+  @Get('admin/audit-logs/standalone')
+  public async getStandaloneAuditLogs(
+    @Query() query: AuthAuditLogQueryDTO,
+    @Headers('x-audit-dashboard-key') accessKey?: string,
+  ): Promise<DataResponse<AuthAuditLogDashboardDTO>> {
+    const dashboard =
+      await this.authService.getAuditLogDashboardForStandalone(
+        query,
+        accessKey,
+      );
+
+    return new DataResponse<AuthAuditLogDashboardDTO>(
+      200,
+      'Berhasil mendapatkan data audit autentikasi untuk dashboard standalone.',
       dashboard,
     );
   }

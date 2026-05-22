@@ -9,6 +9,9 @@ export default registerAs('app', () => ({
     secret: process.env.JWT_SECRET,
     expires: process.env.JWT_EXPIRES,
   },
+  auditDashboard: {
+    accessKey: process.env.AUDIT_DASHBOARD_ACCESS_KEY,
+  },
   ai: {
     openRouterApiKey: process.env.OPENROUTER_API_KEY,
     openRouterBaseUrl: process.env.OPENROUTER_BASE_URL,

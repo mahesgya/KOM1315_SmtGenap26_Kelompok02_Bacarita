@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Shield,
   Activity,
@@ -18,13 +18,7 @@ import { DonutChart } from "@/components/DonutChart";
 import { LogStream } from "@/components/LogStream";
 import { SecurityAlerts } from "@/components/SecurityAlerts";
 import { LogTable } from "@/components/LogTable";
-import {
-  fetchAuditDashboard,
-  getStoredApiUrl,
-  getStoredToken,
-  setStoredApiUrl,
-  setStoredToken,
-} from "@/lib/auditApi";
+import { fetchAuditDashboard } from "@/lib/auditApi";
 import type {
   AuditDashboard,
   AuditDashboardQuery,
@@ -75,10 +69,15 @@ const EMPTY_PAGINATION: AuditPagination = {
 function buildMetrics(dashboard: AuditDashboard | null): Metrics {
   const summary = dashboard?.summary;
   const items = dashboard?.items ?? [];
-  const loginAttempts = (summary?.loginSuccessCount ?? 0) + (summary?.loginFailCount ?? 0);
-  const lockedAccounts = [...new Set(
-    items.filter((item) => item.event === "LOCKED" && item.userId).map((item) => item.userId as string),
-  )];
+  const loginAttempts =
+    (summary?.loginSuccessCount ?? 0) + (summary?.loginFailCount ?? 0);
+  const lockedAccounts = [
+    ...new Set(
+      items
+        .filter((item) => item.event === "LOCKED" && item.userId)
+        .map((item) => item.userId as string),
+    ),
+  ];
 
   return {
     total: summary?.totalEvents ?? 0,
@@ -87,7 +86,10 @@ function buildMetrics(dashboard: AuditDashboard | null): Metrics {
     locked: summary?.lockoutCount ?? 0,
     logout: summary?.logoutCount ?? 0,
     uniqueIps: new Set(items.map((item) => item.ip).filter(Boolean)).size,
-    failRate: loginAttempts > 0 ? Math.round(((summary?.loginFailCount ?? 0) / loginAttempts) * 100) : 0,
+    failRate:
+      loginAttempts > 0
+        ? Math.round(((summary?.loginFailCount ?? 0) / loginAttempts) * 100)
+        : 0,
     lockedAccounts,
   };
 }
@@ -104,10 +106,26 @@ function buildTrendBuckets(dashboard: AuditDashboard | null): HourlyBucket[] {
 
 function buildEventSlices(metrics: Metrics): EventSlice[] {
   return [
-    { name: "Login Berhasil", value: metrics.loginOk, color: EVENT_META.LOGIN_OK.color },
-    { name: "Login Gagal", value: metrics.loginFail, color: EVENT_META.LOGIN_FAIL.color },
-    { name: "Logout", value: metrics.logout, color: EVENT_META.LOGOUT.color },
-    { name: "Akun Terkunci", value: metrics.locked, color: EVENT_META.LOCKED.color },
+    {
+      name: "Login Berhasil",
+      value: metrics.loginOk,
+      color: EVENT_META.LOGIN_OK.color,
+    },
+    {
+      name: "Login Gagal",
+      value: metrics.loginFail,
+      color: EVENT_META.LOGIN_FAIL.color,
+    },
+    {
+      name: "Logout",
+      value: metrics.logout,
+      color: EVENT_META.LOGOUT.color,
+    },
+    {
+      name: "Akun Terkunci",
+      value: metrics.locked,
+      color: EVENT_META.LOCKED.color,
+    },
   ].filter((slice) => slice.value > 0);
 }
 
@@ -129,12 +147,7 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [apiUrlInput, setApiUrlInput] = useState("");
-  const [tokenInput, setTokenInput] = useState("");
-  const [connection, setConnection] = useState<{ apiUrl: string; token: string }>({
-    apiUrl: "",
-    token: "",
-  });
+  const [refreshTick, setRefreshTick] = useState(0);
   const [filters, setFilters] = useState<{
     event: AuditEvent | "all";
     role: AuditRole | "all";
@@ -148,22 +161,6 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    const storedApiUrl = getStoredApiUrl();
-    const storedToken = getStoredToken();
-
-    startTransition(() => {
-      setApiUrlInput(storedApiUrl);
-      setTokenInput(storedToken);
-      setConnection({
-        apiUrl: storedApiUrl,
-        token: storedToken,
-      });
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!connection.apiUrl || !connection.token) return;
-
     let isActive = true;
 
     async function loadDashboard() {
@@ -178,7 +175,7 @@ export default function Dashboard() {
       if (filters.role !== "all") query.role = filters.role;
 
       try {
-        const response = await fetchAuditDashboard(connection.apiUrl, connection.token, query);
+        const response = await fetchAuditDashboard(query);
         if (!isActive) return;
         setDashboard(response.data);
         setError(null);
@@ -186,7 +183,11 @@ export default function Dashboard() {
       } catch (loadError) {
         if (!isActive) return;
         setDashboard(null);
-        setError(loadError instanceof Error ? loadError.message : "Gagal memuat data audit.");
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "Gagal memuat data audit.",
+        );
       } finally {
         if (isActive) setIsLoading(false);
       }
@@ -199,7 +200,7 @@ export default function Dashboard() {
       isActive = false;
       window.clearInterval(intervalId);
     };
-  }, [connection, filters]);
+  }, [filters, refreshTick]);
 
   const metrics = useMemo(() => buildMetrics(dashboard), [dashboard]);
   const trend = useMemo(() => buildTrendBuckets(dashboard), [dashboard]);
@@ -207,23 +208,20 @@ export default function Dashboard() {
   const recentLogs = useMemo(() => mapItems(dashboard?.items ?? []), [dashboard]);
 
   const lastRefreshLabel = lastRefresh
-    ? lastRefresh.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+    ? lastRefresh.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })
     : "--:--:--";
-
-  const handleConnect = () => {
-    const normalizedApiUrl = apiUrlInput.trim().replace(/\/+$/, "");
-    const trimmedToken = tokenInput.trim();
-    setStoredApiUrl(normalizedApiUrl);
-    setStoredToken(trimmedToken);
-    setFilters((current) => ({ ...current, page: 1 }));
-    setConnection({ apiUrl: normalizedApiUrl, token: trimmedToken });
-  };
-
-  const canFetch = Boolean(connection.apiUrl && connection.token);
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--bg-base)" }}>
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} lastRefreshLabel={lastRefreshLabel} />
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        lastRefreshLabel={lastRefreshLabel}
+      />
 
       <main className="flex-1 overflow-y-auto">
         <header
@@ -247,7 +245,7 @@ export default function Dashboard() {
               {lastRefreshLabel}
             </span>
             <button
-              onClick={handleConnect}
+              onClick={() => setRefreshTick((current) => current + 1)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:opacity-80"
               style={{
                 background: "var(--bg-card)",
@@ -263,39 +261,24 @@ export default function Dashboard() {
 
         <div className="p-5 space-y-5">
           <section className="card p-5">
-            <div className="grid gap-3 lg:grid-cols-[1.1fr_1.4fr_1fr]">
-              <label className="flex flex-col gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
-                API URL
-                <input
-                  type="text"
-                  value={apiUrlInput}
-                  onChange={(event) => setApiUrlInput(event.target.value)}
-                  placeholder="http://localhost:3001"
-                  className="rounded-lg px-3 py-2 outline-none"
-                  style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)", color: "var(--text-primary)" }}
-                />
-              </label>
-
-              <label className="flex flex-col gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
-                Bearer Token Admin
-                <input
-                  type="password"
-                  value={tokenInput}
-                  onChange={(event) => setTokenInput(event.target.value)}
-                  placeholder="Paste JWT admin"
-                  className="rounded-lg px-3 py-2 outline-none"
-                  style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)", color: "var(--text-primary)" }}
-                />
-              </label>
-
-              <div className="flex items-end">
-                <button
-                  onClick={handleConnect}
-                  className="w-full rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-80"
-                  style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff" }}
-                >
-                  Simpan koneksi
-                </button>
+            <div className="space-y-3">
+              <div>
+                <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                  What this dashboard does
+                </div>
+                <p className="mt-1 text-sm leading-6" style={{ color: "var(--text-muted)" }}>
+                  This dashboard is used to view audit logs, track recent activity, and inspect security-related events in one place.
+                </p>
+              </div>
+              <div>
+                <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                  How to use it
+                </div>
+                <ul className="mt-1 list-disc space-y-1 pl-5 text-sm leading-6" style={{ color: "var(--text-muted)" }}>
+                  <li>Select a time range to filter the logs.</li>
+                  <li>Use the search and filter controls to narrow the results.</li>
+                  <li>Click Refresh to load the latest events.</li>
+                </ul>
               </div>
             </div>
           </section>
@@ -305,12 +288,20 @@ export default function Dashboard() {
               Rentang waktu
               <select
                 value={filters.window}
-                onChange={(event) => setFilters((current) => ({ ...current, window: event.target.value as AuditWindow, page: 1 }))}
+                onChange={(event) =>
+                  setFilters((current) => ({
+                    ...current,
+                    window: event.target.value as AuditWindow,
+                    page: 1,
+                  }))
+                }
                 className="rounded-lg px-3 py-2 outline-none"
                 style={{ background: "var(--bg-card)", border: "1px solid var(--bg-border)", color: "var(--text-primary)" }}
               >
                 {WINDOW_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
                 ))}
               </select>
             </label>
@@ -319,12 +310,20 @@ export default function Dashboard() {
               Event
               <select
                 value={filters.event}
-                onChange={(event) => setFilters((current) => ({ ...current, event: event.target.value as AuditEvent | "all", page: 1 }))}
+                onChange={(event) =>
+                  setFilters((current) => ({
+                    ...current,
+                    event: event.target.value as AuditEvent | "all",
+                    page: 1,
+                  }))
+                }
                 className="rounded-lg px-3 py-2 outline-none"
                 style={{ background: "var(--bg-card)", border: "1px solid var(--bg-border)", color: "var(--text-primary)" }}
               >
                 {EVENT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
                 ))}
               </select>
             </label>
@@ -333,36 +332,47 @@ export default function Dashboard() {
               Peran
               <select
                 value={filters.role}
-                onChange={(event) => setFilters((current) => ({ ...current, role: event.target.value as AuditRole | "all", page: 1 }))}
+                onChange={(event) =>
+                  setFilters((current) => ({
+                    ...current,
+                    role: event.target.value as AuditRole | "all",
+                    page: 1,
+                  }))
+                }
                 className="rounded-lg px-3 py-2 outline-none"
                 style={{ background: "var(--bg-card)", border: "1px solid var(--bg-border)", color: "var(--text-primary)" }}
               >
                 {ROLE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
                 ))}
               </select>
             </label>
 
             <div className="card p-4 flex flex-col justify-center">
-              <span className="text-[10px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Status</span>
-              <span className="text-sm font-semibold mt-1" style={{ color: canFetch ? "#10b981" : "#f59e0b" }}>
-                {canFetch ? "Siap memuat backend" : "Koneksi belum lengkap"}
+              <span className="text-[10px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                Status
+              </span>
+              <span
+                className="text-sm font-semibold mt-1"
+                style={{ color: error ? "#ef4444" : "#10b981" }}
+              >
+                {error ? "Perlu cek env / backend" : "Siap memuat backend"}
               </span>
             </div>
 
             <div className="card p-4 flex flex-col justify-center">
-              <span className="text-[10px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Page Size</span>
+              <span className="text-[10px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                Page Size
+              </span>
               <span className="text-sm font-semibold mt-1" style={{ color: "var(--text-primary)" }}>
                 {dashboard?.pagination.limit ?? EMPTY_PAGINATION.limit} rows
               </span>
             </div>
           </section>
 
-          {!canFetch ? (
-            <div className="card p-8 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-              Isi API URL dan token admin untuk memuat dashboard audit dari backend Bacarita.
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="card p-8 text-center text-sm" style={{ color: "#fca5a5", borderColor: "rgba(239,68,68,0.35)" }}>
               {error}
             </div>
@@ -445,7 +455,9 @@ export default function Dashboard() {
                       <ActivityChart data={trend} />
                     </div>
                     <div className="card p-5">
-                      <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Distribusi Events</p>
+                      <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                        Distribusi Events
+                      </p>
                       <p className="text-xs mt-0.5 mb-4" style={{ color: "var(--text-muted)" }}>
                         Berdasarkan ringkasan backend
                       </p>
@@ -465,8 +477,18 @@ export default function Dashboard() {
                   logs={recentLogs}
                   pagination={dashboard?.pagination ?? EMPTY_PAGINATION}
                   isLoading={isLoading}
-                  onPreviousPage={() => setFilters((current) => ({ ...current, page: Math.max(1, current.page - 1) }))}
-                  onNextPage={() => setFilters((current) => ({ ...current, page: current.page + 1 }))}
+                  onPreviousPage={() =>
+                    setFilters((current) => ({
+                      ...current,
+                      page: Math.max(1, current.page - 1),
+                    }))
+                  }
+                  onNextPage={() =>
+                    setFilters((current) => ({
+                      ...current,
+                      page: current.page + 1,
+                    }))
+                  }
                 />
               )}
             </>
