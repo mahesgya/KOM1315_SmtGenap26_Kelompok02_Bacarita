@@ -1,22 +1,21 @@
 "use client";
 
-import { Shield, LayoutDashboard, ScrollText, FlaskConical, BookOpen, Wifi } from "lucide-react";
+import { Shield, LayoutDashboard, ScrollText, BookOpen, Wifi } from "lucide-react";
 
-type Tab = "overview" | "logs" | "tests";
+type Tab = "overview" | "logs";
 
 interface Props {
   activeTab: Tab;
   onTabChange: (t: Tab) => void;
-  liveCount: number;
+  lastRefreshLabel: string;
 }
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode; desc: string }[] = [
-  { id: "overview", label: "Overview",       icon: <LayoutDashboard size={16} />, desc: "Metrics & charts" },
-  { id: "logs",     label: "Audit Logs",     icon: <ScrollText size={16} />,      desc: "Full log stream" },
-  { id: "tests",    label: "Unit Tests",     icon: <FlaskConical size={16} />,    desc: "Test results" },
+  { id: "overview", label: "Overview",   icon: <LayoutDashboard size={16} />, desc: "Metrics & charts" },
+  { id: "logs",     label: "Audit Logs", icon: <ScrollText size={16} />,      desc: "Full log stream" },
 ];
 
-export function Sidebar({ activeTab, onTabChange, liveCount }: Props) {
+export function Sidebar({ activeTab, onTabChange, lastRefreshLabel }: Props) {
   return (
     <aside
       className="w-[220px] shrink-0 flex flex-col h-full"
@@ -47,8 +46,8 @@ export function Sidebar({ activeTab, onTabChange, liveCount }: Props) {
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
           </span>
           <div>
-            <p className="text-xs font-medium text-emerald-400">Live</p>
-            <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>+{liveCount} new events</p>
+            <p className="text-xs font-medium text-emerald-400">API Connected</p>
+            <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Refresh {lastRefreshLabel}</p>
           </div>
         </div>
       </div>

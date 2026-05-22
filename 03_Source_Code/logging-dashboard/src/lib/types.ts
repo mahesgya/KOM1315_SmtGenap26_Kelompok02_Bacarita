@@ -1,8 +1,9 @@
 export type AuditEvent = "LOGIN_OK" | "LOGIN_FAIL" | "LOGOUT" | "LOCKED";
 export type AuditRole = "admin" | "teacher" | "student" | "parent" | "curator";
+export type AuditWindow = "24h" | "7d" | "30d" | "90d";
 
 export interface LogEntry {
-  id: string;
+  id: string | number;
   timestamp: string;
   event: AuditEvent;
   userId: string | null;
@@ -31,7 +32,7 @@ export interface HourlyBucket {
 }
 
 export interface RoleBucket {
-  role: string;
+  role: AuditRole;
   LOGIN_OK: number;
   LOGIN_FAIL: number;
   LOGOUT: number;
@@ -45,12 +46,55 @@ export interface EventSlice {
   color: string;
 }
 
-export interface TestCase {
-  suite: string;
-  name: string;
-  status: "pass" | "fail";
-  durationMs: number;
-  category: "auth" | "crypto" | "entity" | "http";
+export interface AuditTrendPoint {
+  label: string;
+  total: number;
+  loginSuccessCount: number;
+  loginFailCount: number;
+  lockoutCount: number;
+  logoutCount: number;
+}
+
+export interface AuditPagination {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface AuditDashboard {
+  filters: {
+    event: AuditEvent | null;
+    role: AuditRole | null;
+    window: AuditWindow;
+  };
+  summary: {
+    totalEvents: number;
+    loginSuccessCount: number;
+    loginFailCount: number;
+    logoutCount: number;
+    lockoutCount: number;
+    uniqueUsers: number;
+    recentAlertCount: number;
+    trend: AuditTrendPoint[];
+  };
+  pagination: AuditPagination;
+  items: LogEntry[];
+}
+
+export interface AuditDashboardResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: AuditDashboard;
+}
+
+export interface AuditDashboardQuery {
+  event?: AuditEvent;
+  role?: AuditRole;
+  window?: AuditWindow;
+  page?: number;
+  limit?: number;
 }
 
 export const EVENT_META: Record<AuditEvent, { label: string; color: string; dim: string; bg: string }> = {
@@ -60,10 +104,10 @@ export const EVENT_META: Record<AuditEvent, { label: string; color: string; dim:
   LOCKED:     { label: "Akun Terkunci",   color: "#f59e0b", dim: "#78350f", bg: "rgba(245,158,11,0.12)" },
 };
 
-export const ROLE_META: Record<AuditRole, { label: string; color: string; emoji: string }> = {
-  admin:   { label: "Admin",      color: "#8b5cf6", emoji: "🔐" },
-  teacher: { label: "Guru",       color: "#3b82f6", emoji: "📚" },
-  student: { label: "Siswa",      color: "#10b981", emoji: "🎒" },
-  parent:  { label: "Orang Tua",  color: "#f97316", emoji: "👨‍👩‍👧" },
-  curator: { label: "Kurator",    color: "#ec4899", emoji: "✏️"  },
+export const ROLE_META: Record<AuditRole, { label: string; color: string }> = {
+  admin:   { label: "Admin",     color: "#8b5cf6" },
+  teacher: { label: "Guru",      color: "#3b82f6" },
+  student: { label: "Siswa",     color: "#10b981" },
+  parent:  { label: "Orang Tua", color: "#f97316" },
+  curator: { label: "Kurator",   color: "#ec4899" },
 };

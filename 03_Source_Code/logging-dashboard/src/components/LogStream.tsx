@@ -34,8 +34,7 @@ function RoleBadge({ role }: { role: LogEntry["role"] }) {
 
 export function LogStream({ logs }: Props) {
   const [visible, setVisible] = useState<LogEntry[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const prevTopId = useRef<string>("");
+  const prevTopId = useRef<string | number | null>(null);
 
   useEffect(() => {
     if (logs.length === 0) return;
@@ -68,7 +67,6 @@ export function LogStream({ logs }: Props) {
 
       {/* Entries */}
       <div
-        ref={containerRef}
         className="overflow-y-auto font-mono"
         style={{ maxHeight: 320, background: "#070c18" }}
       >

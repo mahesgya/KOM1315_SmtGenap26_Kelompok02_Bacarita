@@ -2,7 +2,7 @@
 
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend,
+  ResponsiveContainer,
 } from "recharts";
 import type { RoleBucket } from "@/lib/types";
 import { ROLE_META } from "@/lib/types";

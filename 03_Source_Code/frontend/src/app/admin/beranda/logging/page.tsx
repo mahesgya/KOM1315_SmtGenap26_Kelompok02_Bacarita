@@ -153,41 +153,41 @@ export default function AdminLoggingPage() {
           </p>
         </div>
 
-        <section className="rounded-2xl border border-[#DE954F] bg-[#FFF8EC] p-5 shadow-sm">
-          <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-            <div>
+        <section className="overflow-hidden rounded-2xl border border-[#DE954F] bg-[#FFF8EC] p-5 shadow-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div className="min-w-0">
               <h2 className="text-lg font-semibold text-[#4A2C19]">Cakupan AAA</h2>
               <p className="mt-1 max-w-3xl text-sm text-[#8A5B3D]">
                 Dokumentasi kontrol keamanan untuk {SECURITY_COVERAGE_META.aaaLabel}. Bagian ini menjelaskan kontrol yang diuji dan sumber implementasi yang menjadi dasar dashboard ini.
               </p>
             </div>
-            <div className="rounded-xl border border-[#F0C89A] bg-[#FFF3E2] px-4 py-3 text-xs text-[#6B4A32]">
+            <div className="w-full rounded-xl border border-[#F0C89A] bg-[#FFF3E2] px-4 py-3 text-xs text-[#6B4A32] md:w-auto md:max-w-xs md:shrink-0">
               <div>{SECURITY_COVERAGE_META.unitTestCount} unit test AuthGuard</div>
               <div>{SECURITY_COVERAGE_META.adminE2eCoverageAreas}+ skenario e2e admin auth</div>
-              <div>{SECURITY_COVERAGE_META.auditedEvents.join(" · ")} dicatat</div>
+              <div className="break-words">{SECURITY_COVERAGE_META.auditedEvents.join(" · ")} dicatat</div>
             </div>
           </div>
 
           <div className="mt-5 grid gap-4 lg:grid-cols-3">
             {SECURITY_COVERAGE_SECTIONS.map((section) => (
-              <section key={section.id} className="rounded-2xl border border-[#F0D7B6] bg-[#FFFCF7] p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
+              <section key={section.id} className="min-w-0 overflow-hidden rounded-2xl border border-[#F0D7B6] bg-[#FFFCF7] p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
                     <div className="text-xs font-medium uppercase tracking-wide text-[#B07A4A]">{section.shortLabel}</div>
-                    <h3 className="mt-1 text-base font-semibold text-[#4A2C19]">{section.title}</h3>
+                    <h3 className="mt-1 break-words text-base font-semibold text-[#4A2C19]">{section.title}</h3>
                   </div>
-                  <span className="rounded-full bg-[#F7E8D5] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#8A5B3D]">
+                  <span className="inline-flex self-start rounded-full bg-[#F7E8D5] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#8A5B3D] sm:shrink-0">
                     {section.status}
                   </span>
                 </div>
 
-                <p className="mt-3 text-sm leading-6 text-[#6B4A32]">{section.summary}</p>
+                <p className="mt-3 break-words text-sm leading-6 text-[#6B4A32]">{section.summary}</p>
 
                 <div className="mt-4">
                   <div className="text-xs font-semibold uppercase tracking-wide text-[#B07A4A]">Kontrol Terdokumentasi</div>
                   <div className="mt-2 space-y-2">
                     {section.controls.map((control) => (
-                      <div key={control} className="rounded-xl border border-[#F3E1CA] bg-[#FFF8EC] p-3 text-sm text-[#5C3B27]">
+                      <div key={control} className="rounded-xl border border-[#F3E1CA] bg-[#FFF8EC] p-3 text-sm text-[#5C3B27] break-words">
                         {control}
                       </div>
                     ))}
@@ -196,9 +196,9 @@ export default function AdminLoggingPage() {
 
                 <div className="mt-4">
                   <div className="text-xs font-semibold uppercase tracking-wide text-[#B07A4A]">Sumber Bukti</div>
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="mt-2 grid gap-2">
                     {section.evidence.map((item) => (
-                      <span key={item} className="rounded-full border border-[#F0C89A] bg-[#FFF3E2] px-3 py-1 text-[11px] text-[#6B4A32]">
+                      <span key={item} className="min-w-0 rounded-xl border border-[#F0C89A] bg-[#FFF3E2] px-3 py-2 text-[11px] text-[#6B4A32] break-all">
                         {item}
                       </span>
                     ))}
