@@ -1,28 +1,32 @@
 import axios, { AxiosError } from 'axios';
-import Cookies from '../../node_modules/@types/js-cookie';
 import { LogoutResponse } from '@/types/auth.types';
 import { ErrorPayload } from '@/types/general.types';
-import type { AppDispatch } from '@/redux/store';
+import type { AppDispatch, RootState } from '@/redux/store';
 import { setLoading } from '@/redux/general.slice';
 import { setLogout } from '@/redux/auth.slice';
+import { buildAuthConfig, isErrorPayload } from './_helper';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-async function logoutUser(role: 'teachers' | 'parents' | 'students' | 'admins' | 'curators', dispatch: AppDispatch): Promise<LogoutResponse | ErrorPayload> {
+async function logoutUser(role: 'teachers' | 'parents' | 'students' | 'admins' | 'curators', dispatch: AppDispatch, getState?: () => RootState): Promise<LogoutResponse | ErrorPayload> {
   try {
     dispatch(setLoading(true));
+    const authConfig = await buildAuthConfig(getState);
+    if (isErrorPayload(authConfig)) {
+      dispatch(setLogout());
+      await fetch('/api/auth/remove-session', {
+        method: 'POST',
+      });
+      return authConfig;
+    }
+
     const response = await axios.post<LogoutResponse>(
       `${BASE_URL}/auth/${role}/logout`,
       {},
-      {
-        headers: {
-          Authorization: `Bearer ${Cookies.get('token')}`,
-        },
-      },
+      authConfig,
     );
 
     if (response.data.success) {
-      Cookies.remove('token');
       dispatch(setLogout());
 
       await fetch('/api/auth/remove-session', {
@@ -33,8 +37,10 @@ async function logoutUser(role: 'teachers' | 'parents' | 'students' | 'admins' |
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError<LogoutResponse>;
-    Cookies.remove('token');
     dispatch(setLogout());
+    await fetch('/api/auth/remove-session', {
+      method: 'POST',
+    });
 
     if (axiosError.response?.data) {
       return axiosError.response.data;
@@ -51,11 +57,11 @@ async function logoutUser(role: 'teachers' | 'parents' | 'students' | 'admins' |
 }
 
 const LogoutServices = {
-  LogoutGuru: (dispatch: AppDispatch) => logoutUser('teachers', dispatch),
-  LogoutOrangTua: (dispatch: AppDispatch) => logoutUser('parents', dispatch),
-  LogoutSiswa: (dispatch: AppDispatch) => logoutUser('students', dispatch),
-  LogoutAdmin: (dispatch: AppDispatch) => logoutUser('admins', dispatch),
-  LogoutKurator: (dispatch: AppDispatch) => logoutUser('curators', dispatch),
+  LogoutGuru: (dispatch: AppDispatch, getState?: () => RootState) => logoutUser('teachers', dispatch, getState),
+  LogoutOrangTua: (dispatch: AppDispatch, getState?: () => RootState) => logoutUser('parents', dispatch, getState),
+  LogoutSiswa: (dispatch: AppDispatch, getState?: () => RootState) => logoutUser('students', dispatch, getState),
+  LogoutAdmin: (dispatch: AppDispatch, getState?: () => RootState) => logoutUser('admins', dispatch, getState),
+  LogoutKurator: (dispatch: AppDispatch, getState?: () => RootState) => logoutUser('curators', dispatch, getState),
 };
 
 export default LogoutServices;

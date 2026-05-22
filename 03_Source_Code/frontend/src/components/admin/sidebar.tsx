@@ -17,6 +17,7 @@ export type NavItem = { label: string; href: string; icon?: JSX.Element };
 const navItems: NavItem[] = [
   { label: "Beranda", href: "/admin/beranda" },
   { label: "Level", href: "/admin/beranda/level" },
+  { label: "Keamanan", href: "/admin/beranda/logging" },
 ];
 
 type SidebarProps = { open: boolean; onClose: () => void; onToggle: () => void };
@@ -47,7 +48,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, onToggle }) => {
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -100,7 +101,7 @@ const Sidebar: FC<SidebarProps> = ({ open, onClose, onToggle }) => {
         </div>
 
         <nav className="space-y-2">
-          {navItems.map((item, idx) => {
+          {navItems.map((item) => {
             const active = item.href === "/admin/beranda" ? pathname === item.href : pathname.startsWith(item.href);
 
             return (

@@ -4,20 +4,37 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import AdminServices from "@/services/admin.services";
 import { IAdminOverview } from "@/types/admin.types";
+import { ErrorPayload } from "@/types/general.types";
 
 export default function AdminBerandaPage() {
   const dispatch = useDispatch();
   const [overview, setOverview] = useState<IAdminOverview | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOverview = async () => {
       const response = await AdminServices.GetOverview(dispatch);
       if (response.success) {
         setOverview(response.data);
+        setError(null);
+        return;
       }
+
+      setError((response as ErrorPayload).error);
     };
     fetchOverview();
   }, [dispatch]);
+
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="max-w-md rounded-2xl border border-[#DE954F] bg-[#FFF8EC] p-6 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-[#4A2C19]">Gagal memuat beranda admin</h2>
+          <p className="mt-2 text-sm text-[#8A5B3D]">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!overview) {
     return (

@@ -5,22 +5,39 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import CuratorServices from "@/services/curator.services";
 import { IWaitingStories } from "@/types/curator.types";
+import { ErrorPayload } from "@/types/general.types";
 
 export default function KuratorBerandaPage() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [waitingStories, setWaitingStories] = useState<IWaitingStories | null>(null);
-
-  const fetchWaitingStories = async () => {
-    const response = await CuratorServices.GetWaitingStories(dispatch);
-    if (response.success) {
-      setWaitingStories(response.data);
-    }
-  };
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchWaitingStories = async () => {
+      const response = await CuratorServices.GetWaitingStories(dispatch);
+      if (response.success) {
+        setWaitingStories(response.data);
+        setError(null);
+        return;
+      }
+
+      setError((response as ErrorPayload).error);
+    };
+
     fetchWaitingStories();
   }, [dispatch]);
+
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="max-w-md rounded-2xl border border-[#DE954F] bg-[#FFF8EC] p-6 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-[#4A2C19]">Gagal memuat beranda kurator</h2>
+          <p className="mt-2 text-sm text-[#8A5B3D]">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!waitingStories) {
     return (
@@ -61,6 +78,7 @@ export default function KuratorBerandaPage() {
             {waitingStories.stories.map((story) => (
               <div key={story.id} className="rounded-xl border border-[#DE954F] bg-[#FFF8EC] p-4 shadow-sm transition hover:shadow-md">
                 <div className="relative h-32 w-full overflow-hidden rounded-md bg-[#FFF8EC]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={story.imageUrl} alt={story.title} className="h-full w-full object-contain" />
                 </div>
                 <div className="mt-3">

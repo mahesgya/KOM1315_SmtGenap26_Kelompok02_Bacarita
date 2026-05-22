@@ -1,5 +1,4 @@
 import axios, { AxiosError } from 'axios';
-import Cookies from '../../node_modules/@types/js-cookie';
 import { AppDispatch } from '@/redux/store';
 import { setLoading } from '@/redux/general.slice';
 import { ErrorPayload } from '@/types/general.types';
@@ -7,6 +6,7 @@ import { TestSessionResponse } from '@/types/story.types';
 import { QuestionAnswerResponse, QuestionListResponse, QuestionListSuccessPayload, QuestionWithNumber } from '@/types/question.types';
 import { clearQuestionData, setQuestionData } from '@/redux/question.slice';
 import { clearTestSession } from '@/redux/session.slice';
+import { buildAuthConfig, isErrorPayload } from './_helper';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -16,23 +16,12 @@ const TestSessionServices = {
       dispatch(setLoading(true));
       dispatch(clearQuestionData());
       dispatch(clearTestSession());
-      const token = Cookies.get('token');
-      if (!token) {
-        const fallbackError = {
-          success: false,
-          statusCode: 401,
-          error: 'Unauthorized: token tidak tersedia.',
-        } as ErrorPayload;
-        return fallbackError;
-      }
+      const authConfig = await buildAuthConfig();
+      if (isErrorPayload(authConfig)) return authConfig;
       const response = await axios.post<TestSessionResponse>(
         `${BASE_URL}/students/test-sessions`,
         { storyId: storyId },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        authConfig,
       );
 
       return response.data;
@@ -57,21 +46,10 @@ const TestSessionServices = {
   GetTestSessionStatus: async (dispatch: AppDispatch, testSessionId: string) => {
     try {
       dispatch(setLoading(true));
-      const token = Cookies.get('token');
-      if (!token) {
-        const fallbackError = {
-          success: false,
-          statusCode: 401,
-          error: 'Unauthorized: token tidak tersedia.',
-        } as ErrorPayload;
-        return fallbackError;
-      }
+      const authConfig = await buildAuthConfig();
+      if (isErrorPayload(authConfig)) return authConfig;
 
-      const response = await axios.get<TestSessionResponse>(`${BASE_URL}/students/test-sessions/${testSessionId}/status`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get<TestSessionResponse>(`${BASE_URL}/students/test-sessions/${testSessionId}/status`, authConfig);
 
       return response.data;
     } catch (error) {
@@ -94,24 +72,13 @@ const TestSessionServices = {
   StartQuestion: async (dispatch: AppDispatch, testSessionId: string, storyId: number) => {
     try {
       dispatch(setLoading(true));
-      const token = Cookies.get('token');
-      if (!token) {
-        const fallbackError = {
-          success: false,
-          statusCode: 401,
-          error: 'Unauthorized: token tidak tersedia.',
-        } as ErrorPayload;
-        return fallbackError;
-      }
+      const authConfig = await buildAuthConfig();
+      if (isErrorPayload(authConfig)) return authConfig;
 
       const response = await axios.post<QuestionListResponse>(
         `${BASE_URL}/students/test-sessions/${testSessionId}/stt-questions`,
         { storyId: storyId },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        authConfig,
       );
       if (!response.data.success) {
         throw new Error((response.data as ErrorPayload).error);
@@ -148,15 +115,8 @@ const TestSessionServices = {
   AnswerQuestion: async (dispatch: AppDispatch, testSessionId: string, questionId: string, form: { spokenWord: string; accuracy: number }) => {
     try {
       dispatch(setLoading(true));
-      const token = Cookies.get('token');
-      if (!token) {
-        const fallbackError = {
-          success: false,
-          statusCode: 401,
-          error: 'Unauthorized: token tidak tersedia.',
-        } as ErrorPayload;
-        return fallbackError;
-      }
+      const authConfig = await buildAuthConfig();
+      if (isErrorPayload(authConfig)) return authConfig;
 
       const response = await axios.post<QuestionAnswerResponse>(
         `${BASE_URL}/students/test-sessions/${testSessionId}/stt-questions/${questionId}/answer`,
@@ -164,11 +124,7 @@ const TestSessionServices = {
           spokenWord: form.spokenWord,
           accuracy: form.accuracy,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        authConfig,
       );
 
       return response.data;
@@ -192,23 +148,12 @@ const TestSessionServices = {
   FinishTest: async (dispatch: AppDispatch, testSessionId: string) => {
     try {
       dispatch(setLoading(true));
-      const token = Cookies.get('token');
-      if (!token) {
-        const fallbackError = {
-          success: false,
-          statusCode: 401,
-          error: 'Unauthorized: token tidak tersedia.',
-        } as ErrorPayload;
-        return fallbackError;
-      }
+      const authConfig = await buildAuthConfig();
+      if (isErrorPayload(authConfig)) return authConfig;
       const response = await axios.post<TestSessionResponse>(
         `${BASE_URL}/students/test-sessions/${testSessionId}/finish`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        authConfig,
       );
       dispatch(clearQuestionData());
       dispatch(clearTestSession());

@@ -67,31 +67,50 @@ npm install
 
 ## Environment Variables
 
-Create a `.env` file in `03_Source_Code/backend/`:
+Create `03_Source_Code/backend/.env.development` for local development.
+The backend does not read `backend/.env`; it loads `.env.development`,
+`.env.production`, or `.env.test` based on `NODE_ENV`.
 
 ```env
 NODE_ENV=development
 
 # Database
+DB_TYPE=mysql
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=root
 DB_PASSWORD=your_password
-DB_NAME=bacarita
+DB_DATABASE=bacarita
 
 # JWT
 JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=1d
+JWT_EXPIRES=1d
+
+# Admin Seeder
+ADMIN_EMAIL=admin@bacarita.com
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=adminbacarita123
+ADMIN_FULL_NAME=Admin Bacarita
+
+# Curator Seeder
+CURATOR_EMAIL=curator@example.com
+CURATOR_USERNAME=curator
+CURATOR_PASSWORD=curatorbacarita123
+CURATOR_FULL_NAME=Curator Name
 
 # Mail
 MAIL_HOST=smtp.example.com
 MAIL_PORT=587
+MAIL_SECURE=false
 MAIL_USER=your_email@example.com
 MAIL_PASS=your_email_password
-MAIL_FROM=your_email@example.com
+MAIL_FROM_NAME=Bacarita
+MAIL_FROM_EMAIL=your_email@example.com
 
-# OpenAI
-OPENAI_API_KEY=your_openai_api_key
+# OpenRouter
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_MODEL=model
 ```
 
 ---
@@ -132,7 +151,11 @@ npm run start
 ```bash
 cd 03_Source_Code/backend
 npm run migration:run
+npm run db:seed
 ```
+
+After seeding, admin login uses the `ADMIN_EMAIL` and `ADMIN_PASSWORD`
+configured in `03_Source_Code/backend/.env.development`.
 
 ### Generate a New Migration
 

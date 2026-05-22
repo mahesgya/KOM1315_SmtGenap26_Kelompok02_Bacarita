@@ -22,6 +22,72 @@ export interface IAdminOverviewSuccess extends SuccessPayload {
 
 export type IAdminOverviewResponse = IAdminOverviewSuccess | ErrorPayload;
 
+export type AuditEventType = "LOGIN_OK" | "LOGIN_FAIL" | "LOGOUT" | "LOCKED";
+export type AuditRoleType = "admin" | "teacher" | "student" | "parent" | "curator";
+export type AuditWindowType = "24h" | "7d" | "30d" | "90d";
+
+export interface IAuthAuditLogItem {
+  id: number;
+  userId: string | null;
+  role: AuditRoleType | null;
+  event: AuditEventType;
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: string;
+}
+
+export interface IAuthAuditLogTrendPoint {
+  label: string;
+  total: number;
+  loginSuccessCount: number;
+  loginFailCount: number;
+  lockoutCount: number;
+  logoutCount: number;
+}
+
+export interface IAuthAuditLogSummary {
+  totalEvents: number;
+  loginSuccessCount: number;
+  loginFailCount: number;
+  logoutCount: number;
+  lockoutCount: number;
+  uniqueUsers: number;
+  recentAlertCount: number;
+  trend: IAuthAuditLogTrendPoint[];
+}
+
+export interface IAuthAuditLogPagination {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface IAuthAuditLogDashboard {
+  filters: {
+    event: AuditEventType | null;
+    role: AuditRoleType | null;
+    window: AuditWindowType;
+  };
+  summary: IAuthAuditLogSummary;
+  pagination: IAuthAuditLogPagination;
+  items: IAuthAuditLogItem[];
+}
+
+export interface IAuthAuditLogQuery {
+  event?: AuditEventType;
+  role?: AuditRoleType;
+  window?: AuditWindowType;
+  page?: number;
+  limit?: number;
+}
+
+export interface IAuthAuditLogDashboardSuccess extends SuccessPayload {
+  data: IAuthAuditLogDashboard;
+}
+
+export type IAuthAuditLogDashboardResponse = IAuthAuditLogDashboardSuccess | ErrorPayload;
+
 export interface IApprovalLog {
   id: number;
   storyId: number;

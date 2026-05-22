@@ -56,6 +56,15 @@ $ npm run start:dev
 
 ```
 
+Important: the backend reads `.env.development` in local development.
+If you only create `.env`, the app and seeders will not load your admin
+credentials.
+
+The admin seeder uses `ADMIN_EMAIL`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and
+`ADMIN_FULL_NAME`. Re-running `npm run db:seed` now updates the existing admin
+record as well, including resetting lockout state and password to the current
+env values.
+
 ## Migration (Development)
 
 Migration in development will use .env.development

@@ -10,6 +10,15 @@ export class CuratorSeeder {
     private configService: ConfigService,
   ) {}
 
+  private getRequiredConfig(key: string): string {
+    const value = this.configService.get<string>(key)?.trim();
+    if (!value) {
+      throw new Error(`Missing required config value: ${key}`);
+    }
+
+    return value;
+  }
+
   async run(): Promise<void> {
     await this.dataSource.transaction(async (manager) => {
       const curatorRepo: Repository<Curator> = manager.getRepository(Curator);
@@ -17,10 +26,10 @@ export class CuratorSeeder {
       const curatorsData = [
         {
           id: uuidv4(),
-          email: this.configService.get<string>('CURATOR_EMAIL')!,
-          username: this.configService.get<string>('CURATOR_USERNAME')!,
-          fullName: this.configService.get<string>('CURATOR_FULL_NAME')!,
-          password: this.configService.get<string>('CURATOR_PASSWORD')!,
+          email: this.getRequiredConfig('CURATOR_EMAIL'),
+          username: this.getRequiredConfig('CURATOR_USERNAME'),
+          fullName: this.getRequiredConfig('CURATOR_FULL_NAME'),
+          password: this.getRequiredConfig('CURATOR_PASSWORD'),
         },
       ];
 
@@ -32,12 +41,23 @@ export class CuratorSeeder {
           ],
         });
 
-        if (!existingCurator) {
-          const hashedPassword = await bcrypt.hash(curatorData.password, 10);
+        const hashedPassword = await bcrypt.hash(curatorData.password, 10);
+
+        if (existingCurator) {
+          existingCurator.email = curatorData.email;
+          existingCurator.username = curatorData.username;
+          existingCurator.fullName = curatorData.fullName;
+          existingCurator.password = hashedPassword;
+          existingCurator.failedLoginAttempts = 0;
+          existingCurator.lockedUntil = null;
+          await curatorRepo.save(existingCurator);
+        } else {
           const curator = curatorRepo.create({
             ...curatorData,
             password: hashedPassword,
             token: null,
+            failedLoginAttempts: 0,
+            lockedUntil: null,
           });
           await curatorRepo.save(curator);
         }

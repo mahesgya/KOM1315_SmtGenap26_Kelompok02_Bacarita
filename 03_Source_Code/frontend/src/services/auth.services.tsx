@@ -5,6 +5,7 @@ import { setLogin } from '@/redux/auth.slice';
 import type { AppDispatch, RootState } from '@/redux/store';
 import { setLoading } from '@/redux/general.slice';
 import { TeacherProfileResponse, StudentProfileResponse, ParentProfileResponse } from '@/types/auth.types';
+import { getSessionToken } from './_helper';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -17,18 +18,6 @@ type LoginPayloadMap = {
 };
 
 type LoginRole = keyof LoginPayloadMap;
-
-// Retrieve the JWT from the HttpOnly cookie via the BFF relay route.
-// The cookie cannot be read directly by JS; the server-side relay returns it.
-async function getSessionToken(): Promise<string | null> {
-  try {
-    const res = await fetch('/api/auth/token');
-    const data = await res.json();
-    return data.token ?? null;
-  } catch {
-    return null;
-  }
-}
 
 async function Login<Role extends LoginRole>(role: Role, payload: LoginPayloadMap[Role], dispatch: AppDispatch): Promise<LoginResponse | ErrorPayload> {
   try {
