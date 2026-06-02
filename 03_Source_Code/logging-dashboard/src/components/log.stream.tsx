@@ -4,8 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import type { LogEntry } from "@/lib/types";
 import { EVENT_META, ROLE_META } from "@/lib/types";
 import { Terminal } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
-interface Props { logs: LogEntry[] }
+interface Props {
+  logs: LogEntry[];
+}
 
 function EventBadge({ event }: { event: LogEntry["event"] }) {
   const m = EVENT_META[event];
@@ -46,68 +51,57 @@ export function LogStream({ logs }: Props) {
   }, [logs]);
 
   return (
-    <div className="card p-0 overflow-hidden">
+    <Card className="overflow-hidden gap-0 py-0">
       {/* Header */}
-      <div
-        className="flex items-center gap-2 px-5 py-3"
-        style={{ borderBottom: "1px solid var(--bg-border)", background: "var(--bg-surface)" }}
-      >
-        <Terminal size={14} className="text-indigo-400" />
-        <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-          Live Log Stream
-        </span>
+      <div className="flex items-center gap-2 px-5 py-3 border-b bg-muted/30">
+        <Terminal size={14} className="text-primary" />
+        <span className="text-sm font-semibold">Live Log Stream</span>
         <div className="ml-auto flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
-          <span className="text-[11px] text-emerald-400">live</span>
+          <span className="text-[11px] text-emerald-500">live</span>
         </div>
       </div>
 
-      {/* Entries */}
-      <div
-        className="overflow-y-auto font-mono"
-        style={{ maxHeight: 320, background: "#070c18" }}
-      >
-        {visible.map((log, idx) => {
-          const ts = new Date(log.timestamp);
-          const time = ts.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-          const isNew = idx === 0;
-          return (
-            <div
-              key={log.id}
-              className={`flex items-center gap-3 px-5 py-2 text-xs border-b transition-colors hover:bg-white/[0.02] ${isNew ? "log-entry-new" : ""}`}
-              style={{
-                borderColor: "var(--bg-border-subtle)",
-                background: isNew ? "rgba(99,102,241,0.04)" : "transparent",
-              }}
-            >
-              {/* Timestamp */}
-              <span className="shrink-0 w-20 text-[10px]" style={{ color: "#3a4e6a" }}>{time}</span>
-
-              {/* Event badge */}
-              <EventBadge event={log.event} />
-
-              {/* Role badge */}
-              <RoleBadge role={log.role} />
-
-              {/* User ID */}
-              <span className="flex-1 truncate" style={{ color: "#4a6280" }}>
-                {log.userId
-                  ? <span style={{ color: "#6b82a0" }}>{log.userId}</span>
-                  : <span style={{ color: "#2a3a4a" }}>—</span>
-                }
-              </span>
-
-              {/* IP */}
-              <span className="shrink-0 text-[10px]" style={{ color: "#304050" }}>
-                {log.ip ?? "—"}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+      {/* Log entries */}
+      <ScrollArea className="h-[320px]">
+        <div className="font-mono">
+          {visible.map((log, idx) => {
+            const ts = new Date(log.timestamp);
+            const time = ts.toLocaleTimeString("id-ID", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            });
+            const isNew = idx === 0;
+            return (
+              <div
+                key={log.id}
+                className={cn(
+                  "flex items-center gap-3 px-5 py-2 text-xs border-b border-border/50 hover:bg-muted/30 transition-colors",
+                  isNew && "log-entry-new bg-primary/5"
+                )}
+              >
+                <span className="shrink-0 w-20 text-[10px] text-muted-foreground">{time}</span>
+                <EventBadge event={log.event} />
+                <RoleBadge role={log.role} />
+                <span className="flex-1 truncate text-muted-foreground">
+                  {log.userId ? (
+                    <span className="text-foreground/70">{log.userId}</span>
+                  ) : (
+                    <span className="text-muted-foreground/50">—</span>
+                  )}
+                </span>
+                <span className="shrink-0 text-[10px] text-muted-foreground/70">
+                  {log.ip ?? "—"}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </ScrollArea>
+    </Card>
   );
 }

@@ -2,13 +2,15 @@
 
 import type { AuditDashboard, Metrics } from "@/lib/types";
 import { AlertTriangle, ShieldAlert, Lock, Eye } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface Props {
   dashboard: AuditDashboard;
   metrics: Metrics;
 }
 
-interface Alert {
+interface AlertItem {
   id: string;
   level: "critical" | "warning" | "info";
   icon: React.ReactNode;
@@ -18,13 +20,28 @@ interface Alert {
 }
 
 const LEVEL_STYLE = {
-  critical: { color: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.25)", dot: "#ef4444" },
-  warning:  { color: "#f59e0b", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.25)", dot: "#f59e0b" },
-  info:     { color: "#6366f1", bg: "rgba(99,102,241,0.08)", border: "rgba(99,102,241,0.25)", dot: "#6366f1" },
+  critical: {
+    textColor: "text-destructive",
+    bg: "bg-destructive/10",
+    border: "border-destructive/25",
+    iconBg: "bg-destructive/15",
+  },
+  warning: {
+    textColor: "text-amber-500",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/25",
+    iconBg: "bg-amber-500/15",
+  },
+  info: {
+    textColor: "text-primary",
+    bg: "bg-primary/5",
+    border: "border-primary/20",
+    iconBg: "bg-primary/15",
+  },
 };
 
 export function SecurityAlerts({ dashboard, metrics }: Props) {
-  const alerts: Alert[] = [];
+  const alerts: AlertItem[] = [];
   const latestLog = dashboard.items[0] ?? null;
   const loginAttemptCount = metrics.loginOk + metrics.loginFail;
 
@@ -45,7 +62,7 @@ export function SecurityAlerts({ dashboard, metrics }: Props) {
       level: "warning",
       icon: <ShieldAlert size={13} />,
       title: `Fail Rate Tinggi: ${metrics.failRate}%`,
-      desc: `${metrics.loginFail} percobaan login gagal dari ${loginAttemptCount} percobaan login pada hasil filter aktif.`,
+      desc: `${metrics.loginFail} percobaan login gagal dari ${loginAttemptCount} percobaan pada filter aktif.`,
       time: dashboard.filters.window,
     });
   }
@@ -83,70 +100,74 @@ export function SecurityAlerts({ dashboard, metrics }: Props) {
     });
   }
 
+  const criticalCount = alerts.filter((a) => a.level === "critical").length;
+
   return (
-    <div className="card p-5 flex flex-col">
-      <div className="flex items-center gap-2 mb-4">
-        <AlertTriangle size={14} className="text-amber-400" />
-        <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Security Alerts</p>
-        {alerts.filter((alert) => alert.level === "critical").length > 0 && (
-          <span
-            className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full"
-            style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" }}
-          >
-            {alerts.filter((alert) => alert.level === "critical").length} CRITICAL
-          </span>
-        )}
-      </div>
+    <Card className="gap-0 py-0">
+      <CardHeader className="border-b px-5 py-4">
+        <div className="flex items-center gap-2">
+          <AlertTriangle size={14} className="text-amber-500" />
+          <CardTitle className="text-sm">Security Alerts</CardTitle>
+          {criticalCount > 0 && (
+            <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-destructive/15 text-destructive border border-destructive/30">
+              {criticalCount} CRITICAL
+            </span>
+          )}
+        </div>
+      </CardHeader>
 
-      <div className="flex-1 space-y-2.5 overflow-y-auto" style={{ maxHeight: 260 }}>
-        {alerts.map((alert) => {
-          const style = LEVEL_STYLE[alert.level];
-
-          return (
-            <div
-              key={alert.id}
-              className="rounded-xl p-3.5 flex gap-3"
-              style={{ background: style.bg, border: `1px solid ${style.border}` }}
-            >
+      <CardContent className="pt-4">
+        <div className="space-y-2.5 overflow-y-auto" style={{ maxHeight: 260 }}>
+          {alerts.map((alert) => {
+            const style = LEVEL_STYLE[alert.level];
+            return (
               <div
-                className="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center mt-0.5"
-                style={{ background: `${style.dot}20`, color: style.color }}
+                key={alert.id}
+                className={cn("rounded-xl p-3.5 flex gap-3 border", style.bg, style.border)}
               >
-                {alert.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold" style={{ color: style.color }}>{alert.title}</p>
-                  <span className="text-[10px] shrink-0" style={{ color: "var(--text-muted)" }}>{alert.time}</span>
+                <div
+                  className={cn(
+                    "w-7 h-7 rounded-lg shrink-0 flex items-center justify-center mt-0.5",
+                    style.iconBg,
+                    style.textColor
+                  )}
+                >
+                  {alert.icon}
                 </div>
-                <p className="text-[11px] mt-1 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                  {alert.desc}
-                </p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className={cn("text-xs font-semibold", style.textColor)}>{alert.title}</p>
+                    <span className="text-[10px] shrink-0 text-muted-foreground">{alert.time}</span>
+                  </div>
+                  <p className="text-[11px] mt-1 leading-relaxed text-muted-foreground">
+                    {alert.desc}
+                  </p>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      <div className="mt-4 pt-3" style={{ borderTop: "1px solid var(--bg-border)" }}>
-        <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--text-muted)" }}>
-          Ringkasan Filter
-        </p>
-        <div className="grid grid-cols-2 gap-2 text-[10px]">
-          <div className="rounded-lg px-3 py-2" style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)" }}>
-            Window: {dashboard.filters.window}
-          </div>
-          <div className="rounded-lg px-3 py-2" style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)" }}>
-            Unique user: {dashboard.summary.uniqueUsers}
-          </div>
-          <div className="rounded-lg px-3 py-2" style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)" }}>
-            Event: {dashboard.filters.event ?? "all"}
-          </div>
-          <div className="rounded-lg px-3 py-2" style={{ background: "var(--bg-surface)", border: "1px solid var(--bg-border)" }}>
-            Role: {dashboard.filters.role ?? "all"}
+        <div className="mt-4 pt-3 border-t">
+          <p className="text-[10px] font-semibold uppercase tracking-wider mb-2 text-muted-foreground">
+            Ringkasan Filter
+          </p>
+          <div className="grid grid-cols-2 gap-2 text-[10px]">
+            <div className="rounded-lg px-3 py-2 bg-muted text-muted-foreground">
+              Window: {dashboard.filters.window}
+            </div>
+            <div className="rounded-lg px-3 py-2 bg-muted text-muted-foreground">
+              Unique user: {dashboard.summary.uniqueUsers}
+            </div>
+            <div className="rounded-lg px-3 py-2 bg-muted text-muted-foreground">
+              Event: {dashboard.filters.event ?? "all"}
+            </div>
+            <div className="rounded-lg px-3 py-2 bg-muted text-muted-foreground">
+              Role: {dashboard.filters.role ?? "all"}
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

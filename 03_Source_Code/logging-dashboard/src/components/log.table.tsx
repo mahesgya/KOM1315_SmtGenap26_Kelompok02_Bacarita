@@ -3,6 +3,17 @@
 import type { AuditPagination, LogEntry, AuditEvent, AuditRole } from "@/lib/types";
 import { EVENT_META, ROLE_META } from "@/lib/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface Props {
   logs: LogEntry[];
@@ -16,17 +27,17 @@ function EventBadge({ event }: { event: AuditEvent }) {
   const m = EVENT_META[event];
   return (
     <span
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold"
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold whitespace-nowrap"
       style={{ background: m.bg, color: m.color, border: `1px solid ${m.color}25` }}
     >
-      <span className="w-1.5 h-1.5 rounded-full" style={{ background: m.color }} />
+      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: m.color }} />
       {m.label}
     </span>
   );
 }
 
 function RoleBadge({ role }: { role: AuditRole | null }) {
-  if (!role) return <span style={{ color: "var(--text-muted)" }}>—</span>;
+  if (!role) return <span className="text-muted-foreground">—</span>;
   const m = ROLE_META[role];
   return (
     <span
@@ -40,120 +51,110 @@ function RoleBadge({ role }: { role: AuditRole | null }) {
 
 export function LogTable({ logs, pagination, isLoading, onPreviousPage, onNextPage }: Props) {
   return (
-    <div className="card overflow-hidden">
-      <div
-        className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
-        style={{ borderBottom: "1px solid var(--bg-border)", background: "var(--bg-surface)" }}
-      >
+    <Card className="overflow-hidden gap-0 py-0">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b bg-muted/30">
         <div>
-          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-            Audit Log Table
-          </p>
-          <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
+          <p className="text-sm font-semibold">Audit Log Table</p>
+          <p className="text-[11px] text-muted-foreground">
             Menampilkan {logs.length} dari {pagination.totalItems.toLocaleString("id-ID")} event.
           </p>
         </div>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-xs" style={{ borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--bg-border)" }}>
-              {["Timestamp", "Event", "Role", "User ID", "IP Address", "User Agent"].map(h => (
-                <th
-                  key={h}
-                  className="px-4 py-3 text-left font-semibold uppercase tracking-wider text-[10px]"
-                  style={{ color: "var(--text-muted)" }}
-                >
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/30 hover:bg-muted/30">
+              {["Timestamp", "Event", "Role", "User ID", "IP Address", "User Agent"].map((h) => (
+                <TableHead key={h} className="text-[10px] uppercase tracking-wider font-semibold">
                   {h}
-                </th>
+                </TableHead>
               ))}
-            </tr>
-          </thead>
-          <tbody>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {logs.map((log) => {
               const ts = new Date(log.timestamp);
               const isAlert = log.event === "LOCKED" || log.event === "LOGIN_FAIL";
               return (
-                <tr
+                <TableRow
                   key={log.id}
-                  className="transition-colors hover:bg-white/[0.02]"
-                  style={{
-                    borderBottom: "1px solid var(--bg-border-subtle)",
-                    background: isAlert ? EVENT_META[log.event].bg : "transparent",
-                  }}
+                  className={cn("text-xs", isAlert && "bg-destructive/5 dark:bg-destructive/5")}
                 >
-                  <td className="px-4 py-2.5 font-mono" style={{ color: "var(--text-muted)" }}>
-                    <div>{ts.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "2-digit" })}</div>
+                  <TableCell className="font-mono text-muted-foreground py-2.5">
+                    <div>
+                      {ts.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "2-digit" })}
+                    </div>
                     <div className="text-[10px]">{ts.toLocaleTimeString("id-ID")}</div>
-                  </td>
-                  <td className="px-4 py-2.5"><EventBadge event={log.event} /></td>
-                  <td className="px-4 py-2.5"><RoleBadge role={log.role} /></td>
-                  <td className="px-4 py-2.5 font-mono" style={{ color: "var(--text-secondary)" }}>
-                    {log.userId ?? <span style={{ color: "var(--text-muted)" }}>—</span>}
-                  </td>
-                  <td className="px-4 py-2.5 font-mono" style={{ color: "var(--text-secondary)" }}>
+                  </TableCell>
+                  <TableCell className="py-2.5">
+                    <EventBadge event={log.event} />
+                  </TableCell>
+                  <TableCell className="py-2.5">
+                    <RoleBadge role={log.role} />
+                  </TableCell>
+                  <TableCell className="font-mono text-xs py-2.5">
+                    {log.userId ?? <span className="text-muted-foreground">—</span>}
+                  </TableCell>
+                  <TableCell className="font-mono text-xs py-2.5">
                     {log.ip ?? "—"}
-                  </td>
-                  <td className="px-4 py-2.5 max-w-[200px] truncate" style={{ color: "var(--text-muted)", fontSize: 10 }}>
+                  </TableCell>
+                  <TableCell className="max-w-[200px] truncate text-[10px] text-muted-foreground py-2.5">
                     {log.userAgent ?? "—"}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
 
         {!isLoading && logs.length === 0 && (
-          <div className="py-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+          <div className="py-12 text-center text-sm text-muted-foreground">
             Tidak ada log yang sesuai filter.
           </div>
         )}
       </div>
 
-      <div
-        className="flex items-center justify-between px-5 py-3"
-        style={{ borderTop: "1px solid var(--bg-border)", background: "var(--bg-surface)" }}
-      >
-        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+      <div className="flex items-center justify-between px-5 py-3 border-t bg-muted/30">
+        <span className="text-xs text-muted-foreground">
           Halaman {pagination.page} dari {pagination.totalPages}
         </span>
         <div className="flex items-center gap-1">
-          <button
+          <Button
+            variant="outline"
+            size="icon-xs"
             onClick={onPreviousPage}
             disabled={pagination.page <= 1 || isLoading}
-            className="w-7 h-7 rounded-lg flex items-center justify-center transition-opacity disabled:opacity-30"
-            style={{ background: "var(--bg-card)", border: "1px solid var(--bg-border)", color: "var(--text-secondary)" }}
           >
             <ChevronLeft size={13} />
-          </button>
+          </Button>
           {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
             const firstPage = Math.max(1, Math.min(pagination.page - 2, pagination.totalPages - 4));
             const p = firstPage + i;
             return (
               <span
                 key={p}
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-all"
-                style={{
-                  background: p === pagination.page ? "rgba(99,102,241,0.2)" : "var(--bg-card)",
-                  border: p === pagination.page ? "1px solid rgba(99,102,241,0.4)" : "1px solid var(--bg-border)",
-                  color: p === pagination.page ? "#818cf8" : "var(--text-secondary)",
-                }}
+                className={cn(
+                  "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-medium",
+                  p === pagination.page
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                )}
               >
                 {p}
               </span>
             );
           })}
-          <button
+          <Button
+            variant="outline"
+            size="icon-xs"
             onClick={onNextPage}
             disabled={pagination.page >= pagination.totalPages || isLoading}
-            className="w-7 h-7 rounded-lg flex items-center justify-center transition-opacity disabled:opacity-30"
-            style={{ background: "var(--bg-card)", border: "1px solid var(--bg-border)", color: "var(--text-secondary)" }}
           >
             <ChevronRight size={13} />
-          </button>
+          </Button>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
