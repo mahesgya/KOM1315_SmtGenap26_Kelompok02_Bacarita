@@ -62,6 +62,16 @@ export interface AuditPagination {
   totalPages: number;
 }
 
+export interface AuditLogItem {
+  id: string;
+  userId: string | null;
+  role: AuditRole | null;
+  event: AuditEvent;
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: string;
+}
+
 export interface AuditDashboard {
   filters: {
     event: AuditEvent | null;
@@ -79,7 +89,7 @@ export interface AuditDashboard {
     trend: AuditTrendPoint[];
   };
   pagination: AuditPagination;
-  items: LogEntry[];
+  items: AuditLogItem[];
 }
 
 export interface AuditDashboardResponse {
