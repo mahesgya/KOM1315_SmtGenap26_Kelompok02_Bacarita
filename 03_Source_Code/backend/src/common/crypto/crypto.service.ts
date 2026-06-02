@@ -1,25 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { createHash, createHmac, timingSafeEqual } from 'crypto';
+import { aesEncrypt, aesDecrypt } from './aes.transformer';
 
 @Injectable()
 export class CryptoService {
-  /**
-   * Compute SHA-256 hex digest of a token string.
-   */
   public hashToken(token: string): string {
     return createHash('sha256').update(token).digest('hex');
   }
 
-  /**
-   * Compute HMAC-SHA256 hex signature of data using the provided secret.
-   */
   public signResult(data: string, secret: string): string {
     return createHmac('sha256', secret).update(data).digest('hex');
   }
 
-  /**
-   * Verify an HMAC-SHA256 signature using constant-time comparison.
-   */
   public verifySignature(
     data: string,
     signature: string,
@@ -34,5 +26,15 @@ export class CryptoService {
     } catch {
       return false;
     }
+  }
+
+  /** AES-256-CBC encrypt. Returns `ivHex:ciphertextHex`. */
+  public encrypt(plaintext: string): string {
+    return aesEncrypt(plaintext);
+  }
+
+  /** AES-256-CBC decrypt. Accepts `ivHex:ciphertextHex`. */
+  public decrypt(ciphertext: string): string {
+    return aesDecrypt(ciphertext);
   }
 }
