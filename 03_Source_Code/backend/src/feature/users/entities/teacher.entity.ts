@@ -9,6 +9,7 @@ import {
 import { Student } from './student.entity';
 import { Exclude } from 'class-transformer';
 import { Level } from 'src/feature/levels/entities/level.entity';
+import { AesTransformer } from 'src/common/crypto/aes.transformer';
 
 @Entity('teachers')
 export class Teacher {
@@ -21,14 +22,14 @@ export class Teacher {
   @Column({ type: 'varchar', length: 90, unique: true })
   username: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'text', transformer: AesTransformer })
   fullName: string;
 
   @Column({ type: 'varchar', length: 255 })
   @Exclude({ toPlainOnly: true })
   password: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'text', transformer: AesTransformer })
   schoolName: string;
 
   @Column({ type: 'text', nullable: true })

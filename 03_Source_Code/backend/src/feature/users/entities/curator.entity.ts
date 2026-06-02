@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { AesTransformer } from 'src/common/crypto/aes.transformer';
 
 @Entity('curators')
 export class Curator {
@@ -18,8 +19,11 @@ export class Curator {
   @Column({ type: 'varchar', length: 90, unique: true })
   username: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'text', transformer: AesTransformer })
   fullName: string;
+
+  @Column({ type: 'text', nullable: true, transformer: AesTransformer })
+  phoneNumber: string | null;
 
   @Column({ type: 'varchar', length: 255 })
   @Exclude({ toPlainOnly: true })

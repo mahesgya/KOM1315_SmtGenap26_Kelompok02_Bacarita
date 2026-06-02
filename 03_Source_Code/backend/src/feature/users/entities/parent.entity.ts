@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Student } from './student.entity';
 import { Exclude } from 'class-transformer';
+import { AesTransformer } from 'src/common/crypto/aes.transformer';
 
 @Entity('parents')
 export class Parent {
@@ -20,7 +21,7 @@ export class Parent {
   @Column({ type: 'varchar', length: 90, unique: true })
   username: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'text', transformer: AesTransformer })
   fullName: string;
 
   @Column({ type: 'varchar', length: 255 })

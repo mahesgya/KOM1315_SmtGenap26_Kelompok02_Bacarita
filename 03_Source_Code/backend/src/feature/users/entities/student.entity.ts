@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { AesTransformer } from 'src/common/crypto/aes.transformer';
 import { LevelProgress } from 'src/feature/levels/entities/level-progress.entity';
 import { TestSession } from 'src/feature/test-session/entities/test-session.entity';
 import {
@@ -22,7 +23,7 @@ export class Student {
   @Column({ type: 'varchar', length: 90, unique: true })
   username: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'text', transformer: AesTransformer })
   fullName: string;
 
   @Column({ type: 'varchar', length: 255 })

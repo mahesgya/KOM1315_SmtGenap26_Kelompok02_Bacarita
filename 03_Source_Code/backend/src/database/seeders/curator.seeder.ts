@@ -30,6 +30,7 @@ export class CuratorSeeder {
           username: this.getRequiredConfig('CURATOR_USERNAME'),
           fullName: this.getRequiredConfig('CURATOR_FULL_NAME'),
           password: this.getRequiredConfig('CURATOR_PASSWORD'),
+          phoneNumber: this.configService.get<string>('CURATOR_PHONE') ?? null,
         },
       ];
 
@@ -47,6 +48,7 @@ export class CuratorSeeder {
           existingCurator.email = curatorData.email;
           existingCurator.username = curatorData.username;
           existingCurator.fullName = curatorData.fullName;
+          existingCurator.phoneNumber = curatorData.phoneNumber;
           existingCurator.password = hashedPassword;
           existingCurator.failedLoginAttempts = 0;
           existingCurator.lockedUntil = null;

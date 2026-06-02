@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { AesTransformer } from 'src/common/crypto/aes.transformer';
 import { Story } from 'src/feature/levels/entities/story.entity';
 import { StoryMedal } from 'src/feature/levels/enum/story-medal.enum';
 import { Student } from 'src/feature/users/entities/student.entity';
@@ -57,10 +58,10 @@ export class TestSession {
   @Column({ nullable: true })
   imageAtTaken?: string;
 
-  @Column({ nullable: true, type: 'longtext' })
+  @Column({ nullable: true, type: 'longtext', transformer: AesTransformer })
   descriptionAtTaken: string;
 
-  @Column({ type: 'longtext' })
+  @Column({ type: 'longtext', transformer: AesTransformer })
   passageAtTaken: string;
 
   @CreateDateColumn()

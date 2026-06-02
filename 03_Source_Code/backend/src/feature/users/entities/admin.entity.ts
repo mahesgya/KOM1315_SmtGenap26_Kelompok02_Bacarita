@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { AesTransformer } from 'src/common/crypto/aes.transformer';
 
 @Entity('admins')
 export class Admin {
@@ -18,7 +19,7 @@ export class Admin {
   @Column({ type: 'varchar', length: 90, unique: true })
   username: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'text', transformer: AesTransformer })
   fullName: string;
 
   @Column({ type: 'varchar', length: 255 })
