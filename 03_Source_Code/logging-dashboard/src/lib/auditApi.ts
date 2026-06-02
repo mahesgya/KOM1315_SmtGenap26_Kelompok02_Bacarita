@@ -1,7 +1,11 @@
-import type {
-  AuditDashboardResponse,
-  AuditDashboardQuery,
-} from "@/lib/types";
+import type { AuditDashboardResponse, AuditDashboardQuery } from "@/lib/types";
+
+export class UnauthorizedError extends Error {
+  constructor() {
+    super("UNAUTHORIZED");
+    this.name = "UnauthorizedError";
+  }
+}
 
 export async function fetchAuditDashboard(
   query: AuditDashboardQuery,
@@ -18,21 +22,18 @@ export async function fetchAuditDashboard(
     cache: "no-store",
   });
 
-  const payload = (await response.json()) as AuditDashboardResponse | {
-    error?: string;
-    message?: string;
-  };
+  if (response.status === 401) {
+    throw new UnauthorizedError();
+  }
+
+  const payload = (await response.json()) as
+    | AuditDashboardResponse
+    | { error?: string; message?: string };
 
   if (!response.ok || !("data" in payload)) {
-    const failedPayload = payload as {
-      error?: string;
-      message?: string;
-    };
-
+    const failedPayload = payload as { error?: string; message?: string };
     throw new Error(
-      failedPayload.error ??
-        failedPayload.message ??
-        "Gagal memuat data audit.",
+      failedPayload.error ?? failedPayload.message ?? "Gagal memuat data audit.",
     );
   }
 
