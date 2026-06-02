@@ -23,30 +23,30 @@ export enum AuditRole {
 @Entity('auth_audit_logs')
 export class AuthAuditLog {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  userId: string | null;
+  userId!: string | null;
 
   @Column({
     type: 'enum',
     enum: AuditRole,
     nullable: true,
   })
-  role: AuditRole | null;
+  role!: AuditRole | null;
 
   @Column({
     type: 'enum',
     enum: AuditEvent,
   })
-  event: AuditEvent;
+  event!: AuditEvent;
 
   @Column({ type: 'varchar', length: 45, nullable: true })
-  ipAddress: string | null;
+  ipAddress!: string | null;
 
   @Column({ type: 'text', nullable: true })
-  userAgent: string | null;
+  userAgent!: string | null;
 
   @CreateDateColumn({ type: 'datetime', precision: 6 })
-  createdAt: Date;
+  createdAt!: Date;
 }
