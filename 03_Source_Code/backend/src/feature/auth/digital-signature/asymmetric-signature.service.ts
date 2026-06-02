@@ -1,42 +1,65 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   createSign,
   createVerify,
   generateKeyPairSync,
   KeyPairSyncResult,
 } from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
+
+const KEYS_DIR = path.resolve(process.cwd(), 'keys');
+const PRIVATE_KEY_PATH = path.join(KEYS_DIR, 'rsa_private.pem');
+const PUBLIC_KEY_PATH = path.join(KEYS_DIR, 'rsa_public.pem');
 
 @Injectable()
 export class AsymmetricSignatureService {
+  private readonly logger = new Logger(AsymmetricSignatureService.name);
   private readonly privateKey: string;
   private readonly publicKey: string;
 
   constructor() {
-    // Use env-provided PEM keys in production; generate an ephemeral pair otherwise.
     const envPrivate = process.env.RSA_PRIVATE_KEY;
     const envPublic = process.env.RSA_PUBLIC_KEY;
 
     if (envPrivate && envPublic) {
       this.privateKey = envPrivate.replace(/\\n/g, '\n');
       this.publicKey = envPublic.replace(/\\n/g, '\n');
+      this.logger.log('RSA keys loaded from environment variables');
     } else {
-      const pair: KeyPairSyncResult<string, string> = generateKeyPairSync(
-        'rsa',
-        {
-          modulusLength: 2048,
-          publicKeyEncoding: { type: 'spki', format: 'pem' },
-          privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
-        },
-      );
-      this.privateKey = pair.privateKey;
-      this.publicKey = pair.publicKey;
+      // Persist generated key pair so signatures survive server restarts
+      const { privateKey, publicKey } = this.loadOrGenerateKeys();
+      this.privateKey = privateKey;
+      this.publicKey = publicKey;
     }
   }
 
-  /**
-   * Sign arbitrary data with the RSA-SHA256 private key.
-   * Returns a base64-encoded DER signature.
-   */
+  private loadOrGenerateKeys(): { privateKey: string; publicKey: string } {
+    if (fs.existsSync(PRIVATE_KEY_PATH) && fs.existsSync(PUBLIC_KEY_PATH)) {
+      this.logger.log(`RSA keys loaded from ${KEYS_DIR}`);
+      return {
+        privateKey: fs.readFileSync(PRIVATE_KEY_PATH, 'utf8'),
+        publicKey: fs.readFileSync(PUBLIC_KEY_PATH, 'utf8'),
+      };
+    }
+
+    this.logger.warn(
+      'RSA keys not found — generating new 2048-bit key pair and persisting to ./keys/',
+    );
+    const pair: KeyPairSyncResult<string, string> = generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: { type: 'spki', format: 'pem' },
+      privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+    });
+
+    fs.mkdirSync(KEYS_DIR, { recursive: true });
+    fs.writeFileSync(PRIVATE_KEY_PATH, pair.privateKey, { mode: 0o600 });
+    fs.writeFileSync(PUBLIC_KEY_PATH, pair.publicKey, { mode: 0o644 });
+    this.logger.log(`RSA key pair written to ${KEYS_DIR}`);
+
+    return { privateKey: pair.privateKey, publicKey: pair.publicKey };
+  }
+
   public sign(data: string): string {
     const signer = createSign('RSA-SHA256');
     signer.update(data, 'utf8');
@@ -44,9 +67,6 @@ export class AsymmetricSignatureService {
     return signer.sign(this.privateKey, 'base64');
   }
 
-  /**
-   * Verify an RSA-SHA256 signature against the public key.
-   */
   public verify(data: string, signature: string): boolean {
     try {
       const verifier = createVerify('RSA-SHA256');
