@@ -6,3 +6,4 @@
 {"timestamp":"2026-06-02T10:14:17.736Z","event":"LOGIN_OK","userId":"874312dc-efe1-4516-b734-8a5f6eb12c35","role":"admin","ip":"::1"}
 {"timestamp":"2026-06-02T10:31:16.363Z","event":"LOGIN_FAIL","userId":null,"role":"admin","ip":"::1"}
 {"timestamp":"2026-06-02T10:31:44.991Z","event":"LOGIN_OK","userId":"874312dc-efe1-4516-b734-8a5f6eb12c35","role":"admin","ip":"::1"}
+{"timestamp":"2026-06-02T16:40:47.952Z","event":"LOGIN_OK","userId":"874312dc-efe1-4516-b734-8a5f6eb12c35","role":"admin","ip":"::1"}
