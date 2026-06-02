@@ -27,7 +27,7 @@ import { AuthGuard } from './guards/auth.guard';
 
     CryptoModule,
 
-    LoggingModule,
+    forwardRef(() => LoggingModule),
 
     forwardRef(() => TeacherModule),
     ParentModule,
