@@ -1,7 +1,15 @@
-import { ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
-import { AUTH_REQUEST_USER_KEY, AuthDecorator, AuthRole } from '../enums/auth.enum';
+import {
+  AUTH_REQUEST_USER_KEY,
+  AuthDecorator,
+  AuthRole,
+} from '../enums/auth.enum';
 import { ICurrentUser } from '../interfaces/current-user.interfaces';
 
 const makeContext = (
@@ -132,7 +140,11 @@ describe('Unit Test: AuthGuard — AAA Authorization Layer', () => {
     const ctx = makeContext('Bearer valid.teacher.token');
     const result = await guard.canActivate(ctx);
     expect(result).toBe(true);
-    expect((ctx.switchToHttp().getRequest() as Record<string, unknown>)[AUTH_REQUEST_USER_KEY]).toEqual(user);
+    expect(
+      (ctx.switchToHttp().getRequest() as Record<string, unknown>)[
+        AUTH_REQUEST_USER_KEY
+      ],
+    ).toEqual(user);
   });
 
   it('must allow access when ANY role is accepted', async () => {

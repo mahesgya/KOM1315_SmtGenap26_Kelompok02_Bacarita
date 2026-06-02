@@ -109,7 +109,12 @@ describe('Unit Test: TestSession Entity', () => {
       } as STTWordResult,
     ];
 
-    testSession2.score = testSession2.calculateScore(sttWordResult2, [], 0, true);
+    testSession2.score = testSession2.calculateScore(
+      sttWordResult2,
+      [],
+      0,
+      true,
+    );
     expect(testSession2.score).toBe(81);
     testSession2.medal = testSession2.determineMedal();
     expect(testSession2.medal).toBe(StoryMedal.GOLD);

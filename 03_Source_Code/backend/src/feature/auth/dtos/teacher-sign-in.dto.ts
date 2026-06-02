@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, ValidateIf } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  ValidateIf,
+} from 'class-validator';
 
 export class TeacherSignInDTO {
   @ValidateIf((o: TeacherSignInDTO) => !o.username)

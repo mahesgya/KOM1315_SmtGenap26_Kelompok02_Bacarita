@@ -1,5 +1,13 @@
 import { Transform } from 'class-transformer';
-import { IsEnum, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 import { AuditRole } from '../entities/auth-audit-log.entity';
 import { AUDIT_WINDOWS, AuditWindow } from './auth-audit-log-query.dto';
 
