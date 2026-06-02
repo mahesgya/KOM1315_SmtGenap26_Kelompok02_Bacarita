@@ -4,7 +4,6 @@ import {
   Get,
   HttpCode,
   Post,
-  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -29,8 +28,6 @@ import { Curator } from '../users/entities/curator.entity';
 import { Student } from '../users/entities/student.entity';
 import { Parent } from '../users/entities/parent.entity';
 import { Teacher } from '../users/entities/teacher.entity';
-import { AuthAuditLogDashboardDTO } from './dtos/auth-audit-log-response.dto';
-import { AuthAuditLogQueryDTO } from './dtos/auth-audit-log-query.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -49,36 +46,6 @@ export class AuthController {
       200,
       `Berhasil mendapatkan data profile ${currentUser.role.toLowerCase()}`,
       instanceToPlain(profile) as Student | Parent | Teacher | Admin | Curator,
-    );
-  }
-
-  @Get('admin/audit-logs')
-  @UseGuards(AuthGuard)
-  @Auth(AuthRole.ADMIN)
-  public async getAuditLogs(
-    @Query() query: AuthAuditLogQueryDTO,
-  ): Promise<DataResponse<AuthAuditLogDashboardDTO>> {
-    const dashboard = await this.authService.getAuditLogDashboard(query);
-
-    return new DataResponse<AuthAuditLogDashboardDTO>(
-      200,
-      'Berhasil mendapatkan data audit autentikasi.',
-      dashboard,
-    );
-  }
-
-  @Get('admin/audit-logs/standalone')
-  @UseGuards(AuthGuard)
-  @Auth(AuthRole.ADMIN)
-  public async getStandaloneAuditLogs(
-    @Query() query: AuthAuditLogQueryDTO,
-  ): Promise<DataResponse<AuthAuditLogDashboardDTO>> {
-    const dashboard = await this.authService.getAuditLogDashboard(query);
-
-    return new DataResponse<AuthAuditLogDashboardDTO>(
-      200,
-      'Berhasil mendapatkan data audit autentikasi untuk dashboard standalone.',
-      dashboard,
     );
   }
 
