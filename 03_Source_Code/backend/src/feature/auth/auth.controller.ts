@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Headers,
   HttpCode,
   Post,
   Query,
@@ -69,15 +68,12 @@ export class AuthController {
   }
 
   @Get('admin/audit-logs/standalone')
+  @UseGuards(AuthGuard)
+  @Auth(AuthRole.ADMIN)
   public async getStandaloneAuditLogs(
     @Query() query: AuthAuditLogQueryDTO,
-    @Headers('x-audit-dashboard-key') accessKey?: string,
   ): Promise<DataResponse<AuthAuditLogDashboardDTO>> {
-    const dashboard =
-      await this.authService.getAuditLogDashboardForStandalone(
-        query,
-        accessKey,
-      );
+    const dashboard = await this.authService.getAuditLogDashboard(query);
 
     return new DataResponse<AuthAuditLogDashboardDTO>(
       200,
