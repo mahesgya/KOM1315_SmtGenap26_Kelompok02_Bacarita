@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield, LayoutDashboard, ScrollText, BookOpen, Wifi } from "lucide-react";
+import { Shield, LayoutDashboard, ScrollText, BookOpen, Wifi, LogOut } from "lucide-react";
 
 type Tab = "overview" | "logs";
 
@@ -8,6 +8,7 @@ interface Props {
   activeTab: Tab;
   onTabChange: (t: Tab) => void;
   lastRefreshLabel: string;
+  onLogout: () => void;
 }
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode; desc: string }[] = [
@@ -15,7 +16,7 @@ const NAV: { id: Tab; label: string; icon: React.ReactNode; desc: string }[] = [
   { id: "logs",     label: "Audit Logs", icon: <ScrollText size={16} />,      desc: "Full log stream" },
 ];
 
-export function Sidebar({ activeTab, onTabChange, lastRefreshLabel }: Props) {
+export function Sidebar({ activeTab, onTabChange, lastRefreshLabel, onLogout }: Props) {
   return (
     <aside
       className="w-[220px] shrink-0 flex flex-col h-full"
@@ -81,7 +82,20 @@ export function Sidebar({ activeTab, onTabChange, lastRefreshLabel }: Props) {
       </nav>
 
       {/* Footer */}
-      <div className="px-5 py-4" style={{ borderTop: "1px solid var(--bg-border)" }}>
+      <div className="px-5 py-4 space-y-3" style={{ borderTop: "1px solid var(--bg-border)" }}>
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-all hover:opacity-80"
+          style={{
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.2)",
+            color: "#fca5a5",
+          }}
+        >
+          <LogOut size={13} />
+          <span className="text-xs font-medium">Keluar</span>
+        </button>
+
         <div className="flex items-center gap-2">
           <Wifi size={12} className="text-emerald-400" />
           <div>
@@ -90,7 +104,7 @@ export function Sidebar({ activeTab, onTabChange, lastRefreshLabel }: Props) {
           </div>
         </div>
         <div
-          className="mt-3 px-3 py-2 rounded-lg"
+          className="px-3 py-2 rounded-lg"
           style={{ background: "var(--bg-card)", border: "1px solid var(--bg-border)" }}
         >
           <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Bacarita v1.0 · IPB LIDM 2025</p>

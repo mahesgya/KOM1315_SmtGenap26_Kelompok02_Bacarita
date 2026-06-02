@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   Shield,
   Activity,
@@ -18,7 +19,7 @@ import { DonutChart } from "@/components/DonutChart";
 import { LogStream } from "@/components/LogStream";
 import { SecurityAlerts } from "@/components/SecurityAlerts";
 import { LogTable } from "@/components/LogTable";
-import { fetchAuditDashboard } from "@/lib/auditApi";
+import { fetchAuditDashboard, UnauthorizedError } from "@/lib/auditApi";
 import type {
   AuditDashboard,
   AuditDashboardQuery,
@@ -142,6 +143,7 @@ function mapItems(items: AuditDashboard["items"]): LogEntry[] {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [dashboard, setDashboard] = useState<AuditDashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -182,6 +184,10 @@ export default function Dashboard() {
         setLastRefresh(new Date());
       } catch (loadError) {
         if (!isActive) return;
+        if (loadError instanceof UnauthorizedError) {
+          router.push("/login");
+          return;
+        }
         setDashboard(null);
         setError(
           loadError instanceof Error
@@ -207,6 +213,11 @@ export default function Dashboard() {
   const eventSlices = useMemo(() => buildEventSlices(metrics), [metrics]);
   const recentLogs = useMemo(() => mapItems(dashboard?.items ?? []), [dashboard]);
 
+  const handleLogout = useCallback(async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  }, [router]);
+
   const lastRefreshLabel = lastRefresh
     ? lastRefresh.toLocaleTimeString("id-ID", {
         hour: "2-digit",
@@ -221,6 +232,7 @@ export default function Dashboard() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         lastRefreshLabel={lastRefreshLabel}
+        onLogout={handleLogout}
       />
 
       <main className="flex-1 overflow-y-auto">
