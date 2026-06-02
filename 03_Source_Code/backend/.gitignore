@@ -65,3 +65,5 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 public/*
 !public/placeholder.webp
 !public/level
+# RSA key files (generated at runtime; set RSA_PRIVATE_KEY / RSA_PUBLIC_KEY env vars in production)
+keys/
