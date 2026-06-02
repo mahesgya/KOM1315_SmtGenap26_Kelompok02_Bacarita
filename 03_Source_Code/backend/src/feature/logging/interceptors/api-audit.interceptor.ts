@@ -57,7 +57,7 @@ export class ApiAuditInterceptor implements NestInterceptor {
       statusCode,
       durationMs,
       ipAddress: request.ip ?? null,
-      userAgent: (request.headers['user-agent'] as string | undefined) ?? null,
+      userAgent: request.headers['user-agent'] ?? null,
     });
   }
 }

@@ -27,19 +27,4 @@ export class LoggingController {
       dashboard,
     );
   }
-
-  @Get('api-logs')
-  @UseGuards(AuthGuard)
-  @Auth(AuthRole.ADMIN)
-  public async getApiLogs(
-    @Query() query: ApiAuditLogQueryDTO,
-  ): Promise<DataResponse<ApiAuditLogDashboardDTO>> {
-    const dashboard = await this.loggingService.getApiLogDashboard(query);
-
-    return new DataResponse<ApiAuditLogDashboardDTO>(
-      200,
-      'Berhasil mendapatkan data audit API.',
-      dashboard,
-    );
-  }
 }

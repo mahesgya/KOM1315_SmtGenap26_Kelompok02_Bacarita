@@ -440,10 +440,7 @@ export class LoggingService {
 
     const endpointMap = new Map<string, number>();
     for (const log of allLogs) {
-      endpointMap.set(
-        log.endpoint,
-        (endpointMap.get(log.endpoint) ?? 0) + 1,
-      );
+      endpointMap.set(log.endpoint, (endpointMap.get(log.endpoint) ?? 0) + 1);
     }
 
     const summary: ApiAuditLogSummaryDTO = {
