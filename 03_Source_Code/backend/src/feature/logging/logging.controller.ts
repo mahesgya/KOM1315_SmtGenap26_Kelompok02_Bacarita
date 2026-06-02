@@ -11,21 +11,6 @@ import { LoggingService } from './logging.service';
 export class LoggingController {
   constructor(private readonly loggingService: LoggingService) {}
 
-  @Get('audit-logs')
-  @UseGuards(AuthGuard)
-  @Auth(AuthRole.ADMIN)
-  public async getAuditLogs(
-    @Query() query: AuthAuditLogQueryDTO,
-  ): Promise<DataResponse<AuthAuditLogDashboardDTO>> {
-    const dashboard = await this.loggingService.getAuditLogDashboard(query);
-
-    return new DataResponse<AuthAuditLogDashboardDTO>(
-      200,
-      'Berhasil mendapatkan data audit autentikasi.',
-      dashboard,
-    );
-  }
-
   @Get('audit-logs/standalone')
   @UseGuards(AuthGuard)
   @Auth(AuthRole.ADMIN)
