@@ -1,8 +1,8 @@
 "use client";
 
-import { Shield, LayoutDashboard, ScrollText, BookOpen, Wifi, LogOut } from "lucide-react";
+import { Shield, LayoutDashboard, ScrollText, Globe, BookOpen, Wifi, LogOut } from "lucide-react";
 
-type Tab = "overview" | "logs";
+type Tab = "overview" | "logs" | "api-logs";
 
 interface Props {
   activeTab: Tab;
@@ -13,7 +13,8 @@ interface Props {
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode; desc: string }[] = [
   { id: "overview", label: "Overview",   icon: <LayoutDashboard size={16} />, desc: "Metrics & charts" },
-  { id: "logs",     label: "Audit Logs", icon: <ScrollText size={16} />,      desc: "Full log stream" },
+  { id: "logs",     label: "Audit Logs", icon: <ScrollText size={16} />,      desc: "Login & logout events" },
+  { id: "api-logs", label: "API Logs",   icon: <Globe size={16} />,           desc: "Semua endpoint" },
 ];
 
 export function Sidebar({ activeTab, onTabChange, lastRefreshLabel, onLogout }: Props) {
