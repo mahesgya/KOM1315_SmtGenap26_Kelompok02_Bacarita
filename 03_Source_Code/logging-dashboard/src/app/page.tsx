@@ -10,7 +10,8 @@ import { DonutChart } from '@/components/donut.chart';
 import { LogStream } from '@/components/log.stream';
 import { SecurityAlerts } from '@/components/security.alerts';
 import { LogTable } from '@/components/log.table';
-import { fetchAuditDashboard, UnauthorizedError } from '@/lib/audit.api';
+import { AuditApi } from '@/api/audit.api';
+import { UnauthorizedError } from '@/api/client';
 import type { AuditDashboard, AuditDashboardQuery, AuditEvent, AuditPagination, AuditRole, AuditWindow, EventSlice, HourlyBucket, LogEntry, Metrics } from '@/lib/types';
 import { EVENT_META } from '@/lib/types';
 
@@ -147,7 +148,7 @@ export default function Dashboard() {
       if (filters.role !== 'all') query.role = filters.role;
 
       try {
-        const response = await fetchAuditDashboard(query);
+        const response = await AuditApi.getDashboard(query);
         if (!isActive) return;
         setDashboard(response.data);
         setError(null);
