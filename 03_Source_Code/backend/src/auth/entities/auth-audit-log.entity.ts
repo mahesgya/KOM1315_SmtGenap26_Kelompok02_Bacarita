@@ -1,1 +1,1 @@
-export * from '../../feature/auth/entities/auth-audit-log.entity';
+export * from '../../feature/logging/entities/auth-audit-log.entity';
