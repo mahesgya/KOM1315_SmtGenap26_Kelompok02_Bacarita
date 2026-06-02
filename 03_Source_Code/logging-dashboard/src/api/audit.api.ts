@@ -3,7 +3,7 @@ import type { AuditDashboardQuery, AuditDashboardResponse, ApiLogQuery, ApiLogDa
 
 export class AuditApi {
   static async getDashboard(query: AuditDashboardQuery): Promise<AuditDashboardResponse> {
-    return apiClient.get<AuditDashboardResponse>("/auth/admin/audit-logs", {
+    return apiClient.get<AuditDashboardResponse>("/api/audit-logs", {
       event: query.event,
       role: query.role,
       window: query.window,
@@ -13,7 +13,7 @@ export class AuditApi {
   }
 
   static async getApiDashboard(query: ApiLogQuery): Promise<ApiLogDashboardResponse> {
-    return apiClient.get<ApiLogDashboardResponse>("/auth/admin/api-logs", {
+    return apiClient.get<ApiLogDashboardResponse>("/api/api-logs", {
       role: query.role,
       method: query.method,
       endpoint: query.endpoint,

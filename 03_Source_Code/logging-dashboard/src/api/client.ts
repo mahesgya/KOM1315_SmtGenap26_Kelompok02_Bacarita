@@ -5,28 +5,8 @@ export class UnauthorizedError extends Error {
   }
 }
 
-const BACKEND_URL = (
-  process.env.NEXT_PUBLIC_BACARITA_API_URL ?? ""
-).replace(/\/+$/, "");
-
-function getAuthToken(): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(/(?:^|;\s*)auth_token=([^;]+)/);
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getAuthToken();
-  const url = path.startsWith("http") ? path : `${BACKEND_URL}${path}`;
-
-  const response = await fetch(url, {
-    cache: "no-store",
-    ...init,
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...((init?.headers as Record<string, string>) ?? {}),
-    },
-  });
+  const response = await fetch(path, { cache: "no-store", ...init });
 
   if (response.status === 401) throw new UnauthorizedError();
 
