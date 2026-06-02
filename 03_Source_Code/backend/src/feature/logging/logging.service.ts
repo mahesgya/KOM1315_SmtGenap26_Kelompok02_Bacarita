@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
+import * as path from 'path';
 import { Repository } from 'typeorm';
 import {
   AuthAuditLog,
@@ -31,8 +32,6 @@ import {
   ApiAuditLogTrendPointDTO,
 } from './dtos/api-audit-log-response.dto';
 
-const AUDIT_LOG_PATH =
-  '/Users/anargyaisadhimaheswara/Documents/Semester6/KI/PBL/05_Testing/auth_activity.log';
 const DEFAULT_AUDIT_WINDOW: AuditWindow = '7d';
 
 @Injectable()
@@ -45,6 +44,29 @@ export class LoggingService {
     private readonly configService: ConfigService,
   ) {}
 
+  private resolveAuditLogPath(): string {
+    const configuredPath = process.env.AUDIT_LOG_PATH?.trim();
+    if (configuredPath) {
+      return path.resolve(configuredPath);
+    }
+
+    let currentDir = process.cwd();
+    while (true) {
+      const candidateDir = path.join(currentDir, '05_Testing');
+      if (fs.existsSync(candidateDir) && fs.statSync(candidateDir).isDirectory()) {
+        return path.join(candidateDir, 'auth_activity.log');
+      }
+
+      const parentDir = path.dirname(currentDir);
+      if (parentDir === currentDir) {
+        break;
+      }
+      currentDir = parentDir;
+    }
+
+    return path.resolve(process.cwd(), 'logs', 'auth_activity.log');
+  }
+
   public writeAuditFile(entry: {
     event: AuditEvent;
     userId: string | null;
@@ -52,6 +74,9 @@ export class LoggingService {
     ip: string | null;
   }): void {
     try {
+      const auditLogPath = this.resolveAuditLogPath();
+      fs.mkdirSync(path.dirname(auditLogPath), { recursive: true });
+
       const line =
         JSON.stringify({
           timestamp: new Date().toISOString(),
@@ -60,7 +85,7 @@ export class LoggingService {
           role: entry.role,
           ip: entry.ip,
         }) + '\n';
-      fs.appendFileSync(AUDIT_LOG_PATH, line, { encoding: 'utf8' });
+      fs.appendFileSync(auditLogPath, line, { encoding: 'utf8' });
     } catch {
       return;
     }
