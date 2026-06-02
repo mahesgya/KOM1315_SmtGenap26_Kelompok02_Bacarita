@@ -67,8 +67,8 @@ export function SecurityAlerts({ dashboard, metrics }: Props) {
       level: "info",
       icon: <Eye size={13} />,
       title: "Event Terbaru",
-      desc: `${latestLog.event} oleh ${latestLog.userId ?? "user tidak diketahui"} dari IP ${latestLog.ip ?? "-"}.`,
-      time: new Date(latestLog.timestamp).toLocaleString("id-ID"),
+      desc: `${latestLog.event} oleh ${latestLog.userId ?? "user tidak diketahui"} dari IP ${latestLog.ipAddress ?? "-"}.`,
+      time: new Date(latestLog.createdAt).toLocaleString("id-ID"),
     });
   }
 
