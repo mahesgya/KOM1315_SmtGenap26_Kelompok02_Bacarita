@@ -17,7 +17,6 @@ export type NavItem = { label: string; href: string; icon?: JSX.Element };
 const navItems: NavItem[] = [
   { label: "Beranda", href: "/admin/beranda" },
   { label: "Level", href: "/admin/beranda/level" },
-  { label: "Keamanan", href: "/admin/beranda/logging" },
 ];
 
 type SidebarProps = { open: boolean; onClose: () => void; onToggle: () => void };
