@@ -1,1 +1,4 @@
 {"timestamp":"2026-05-17T00:00:00.000Z","event":"LOG_INIT","userId":null,"role":null,"ip":null,"note":"AAA audit log initialized — Bacarita security implementation"}
+{"timestamp":"2026-06-02T08:34:26.483Z","event":"LOGIN_OK","userId":"874312dc-efe1-4516-b734-8a5f6eb12c35","role":"admin","ip":"::1"}
+{"timestamp":"2026-06-02T08:57:41.814Z","event":"LOGIN_OK","userId":"874312dc-efe1-4516-b734-8a5f6eb12c35","role":"admin","ip":"::1"}
+{"timestamp":"2026-06-02T08:59:42.535Z","event":"LOGIN_OK","userId":"874312dc-efe1-4516-b734-8a5f6eb12c35","role":"admin","ip":"::1"}
