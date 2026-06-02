@@ -6,7 +6,7 @@ const BACKEND_URL = (
 
 // Map dari path lokal → path backend
 const PROXY_ROUTES: Record<string, string> = {
-  "/api/audit-logs": "/auth/admin/audit-logs",
+  "/api/audit-logs": "/auth/admin/audit-logs/standalone",
   "/api/api-logs":   "/auth/admin/api-logs",
 };
 
