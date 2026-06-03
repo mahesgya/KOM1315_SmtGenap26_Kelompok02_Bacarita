@@ -7,6 +7,7 @@
 {"timestamp":"2026-06-02T10:31:16.363Z","event":"LOGIN_FAIL","userId":null,"role":"admin","ip":"::1"}
 {"timestamp":"2026-06-02T10:31:44.991Z","event":"LOGIN_OK","userId":"874312dc-efe1-4516-b734-8a5f6eb12c35","role":"admin","ip":"::1"}
 {"timestamp":"2026-06-02T16:40:47.952Z","event":"LOGIN_OK","userId":"874312dc-efe1-4516-b734-8a5f6eb12c35","role":"admin","ip":"::1"}
+{"timestamp":"2026-06-02T16:59:41.795Z","event":"LOGIN_OK","userId":"486c2765-6319-47a3-aa73-36bd61a4ebd0","role":"admin","ip":"::1"}
 {"timestamp":"2026-06-03T01:16:34.471Z","event":"LOGIN_OK","userId":"40b55497-8401-4b4b-890f-c7dd1a8e8b95","role":"admin","ip":"::ffff:127.0.0.1"}
 {"timestamp":"2026-06-03T01:19:22.809Z","event":"LOGIN_OK","userId":"40b55497-8401-4b4b-890f-c7dd1a8e8b95","role":"admin","ip":"::ffff:127.0.0.1"}
 {"timestamp":"2026-06-03T01:23:19.653Z","event":"LOGIN_OK","userId":"019e8b13-b31e-73ff-8546-ecb7524e7637","role":"teacher","ip":"::ffff:127.0.0.1"}
