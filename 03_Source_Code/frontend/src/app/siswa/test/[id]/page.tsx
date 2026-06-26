@@ -340,10 +340,16 @@ const BacaPage = () => {
     setQuestionLoading(false);
 
     if (response.success) {
+      // Send distraction summary before navigating, but don't block navigation if it fails
+      generateAndSendSummary(sessionId, dispatch).catch((err) => {
+        console.warn("Gagal mengirim ringkasan distraksi:", err);
+      });
       router.push("/siswa/test/stt/" + session?.id + "/1");
+    } else {
+      const errorMessage = (response as { error?: string }).error || "Gagal memulai sesi pertanyaan.";
+      showToastError(errorMessage);
     }
 
-    generateAndSendSummary(sessionId, dispatch);
     return;
   };
 

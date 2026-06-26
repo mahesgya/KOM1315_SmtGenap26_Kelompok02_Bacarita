@@ -810,9 +810,20 @@ export class TestSessionService extends ITransactionalService {
       });
 
     if (existingSummary) {
-      throw new ForbiddenException(
-        `Ringkasan distraksi untuk sesi tes dengan ID ${testSessionId} sudah pernah dibuat`,
-      );
+      return {
+        id: existingSummary.id,
+        totalSessionDurationSec: existingSummary.totalSessionDurationSec,
+        timeBreakdownFocus: existingSummary.timeBreakdownFocus,
+        timeBreakdownTurning: existingSummary.timeBreakdownTurning,
+        timeBreakdownGlance: existingSummary.timeBreakdownGlance,
+        timeBreakdownNotDetected: existingSummary.timeBreakdownNotDetected,
+        turningTriggersCount: existingSummary.turningTriggersCount,
+        glanceTriggersCount: existingSummary.glanceTriggersCount,
+        avgPoseVariance: existingSummary.avgPoseVariance,
+        longFixationCount: existingSummary.longFixationCount,
+        createdAt: existingSummary.createdAt,
+        updatedAt: existingSummary.updatedAt,
+      } as DistractionSummaryResponseDTO;
     }
 
     const newSummary: DistractedEyeEventsSummary =

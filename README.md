@@ -2,6 +2,12 @@
 
 A full-stack web application built with NestJS (backend) and Next.js (frontend).
 
+## Demo Video
+
+<video src="./BacaritaDashboard_Demo.mp4" controls="controls" style="max-width: 100%;">
+  Your browser does not support the video tag.
+</video>
+
 ## Tech Stack
 
 ### Backend
