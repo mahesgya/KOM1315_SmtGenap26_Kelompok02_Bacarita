@@ -10,7 +10,7 @@ const PROXY_ROUTES: Record<string, string> = {
   "/api/api-logs":   "/auth/admin/api-logs",
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("auth_token")?.value;
 
