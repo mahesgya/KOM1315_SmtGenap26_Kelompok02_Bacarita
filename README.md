@@ -4,7 +4,7 @@ A full-stack web application built with NestJS (backend) and Next.js (frontend).
 
 ## Demo Video
 
-[👉 **Tonton Video Demo (BacaritaDashboard_Demo.mp4)**](https://github.com/mahesgya/KOM1315_SmtGenap26_Kelompok02_Bacarita/blob/master/BacaritaDashboard_Demo.mp4)
+https://github.com/user-attachments/assets/9db940a4-cb9a-4bab-b3a1-94b2efe08e09
 
 ## Tech Stack
 
